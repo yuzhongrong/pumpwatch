@@ -6,16 +6,8 @@ import { useToast } from '@/hooks/use-toast';
 import { Loader2, Sparkles } from 'lucide-react';
 import { SidebarMenu, SidebarMenuItem, SidebarMenuButton } from './ui/sidebar';
 
-function SubmitButton({ onAnalysisStart, onAnalysisFinish }: { onAnalysisStart: () => void; onAnalysisFinish: () => void; }) {
+function SubmitButton() {
   const { pending } = useFormStatus();
-
-  useEffect(() => {
-    if (pending) {
-      onAnalysisStart();
-    } else {
-      onAnalysisFinish();
-    }
-  }, [pending, onAnalysisStart, onAnalysisFinish]);
 
   return (
     <SidebarMenuButton type="submit" disabled={pending} tooltip="热门监控">
@@ -25,11 +17,9 @@ function SubmitButton({ onAnalysisStart, onAnalysisFinish }: { onAnalysisStart: 
   );
 }
 
-export function AITrendAnalyzer({ formAction, formState, onAnalysisStart, onAnalysisFinish }: { 
+export function AITrendAnalyzer({ formAction, formState }: { 
     formAction: (payload: FormData) => void;
     formState: { summary?: string; error?: string };
-    onAnalysisStart: () => void;
-    onAnalysisFinish: () => void;
 }) {
   const { toast } = useToast();
 
@@ -47,7 +37,7 @@ export function AITrendAnalyzer({ formAction, formState, onAnalysisStart, onAnal
     <SidebarMenu>
       <SidebarMenuItem>
         <form action={formAction}>
-          <SubmitButton onAnalysisStart={onAnalysisStart} onAnalysisFinish={onAnalysisFinish} />
+          <SubmitButton />
         </form>
       </SidebarMenuItem>
     </SidebarMenu>
