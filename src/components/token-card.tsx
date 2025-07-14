@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import { AreaChart, Area, Tooltip, ResponsiveContainer } from 'recharts';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { Badge, badgeVariants } from '@/components/ui/badge';
 import type { TokenData } from '@/lib/data';
 import { TrendingUp, TrendingDown, Copy, Check, Eye, ShoppingCart, ShieldCheck } from 'lucide-react';
 import { useState, useEffect } from 'react';
@@ -39,29 +39,25 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 
 const getTradingSuggestion = (rsi5m: number, rsi1h: number) => {
     if (rsi5m < 30 && rsi1h < 30) {
-      return { text: '买入', variant: 'default' as const, icon: ShoppingCart }; // 'Buy' -> Green (default is primary color)
+      return { text: '买入', variant: 'success' as const, icon: ShoppingCart };
     }
     if (rsi5m < 30 && rsi1h > 30) {
-      return { text: '保守买入', variant: 'warning' as const, icon: ShieldCheck }; // 'Conservative Buy' -> Yellow
+      return { text: '保守买入', variant: 'warning' as const, icon: ShieldCheck };
     }
-    // All other cases are 'Wait and see' which is white (outline)
-    return { text: '观望', variant: 'outline' as const, icon: Eye }; // 'Wait and see' -> White
+    return { text: '观望', variant: 'outline' as const, icon: Eye };
 };
 
 type Suggestion = ReturnType<typeof getTradingSuggestion>;
 
 export function TokenCard({ token }: { token: TokenData }) {
   const isPositive = token.priceChange24h >= 0;
-  const primaryColor = 'hsl(var(--primary))';
-  const destructiveColor = 'hsl(0 84.2% 60.2%)';
-  const chartColor = isPositive ? primaryColor : destructiveColor;
+  const chartColor = isPositive ? 'hsl(var(--primary))' : 'hsl(var(--destructive))';
   const [isCopied, setIsCopied] = useState(false);
   const [suggestion, setSuggestion] = useState<Suggestion | null>(null);
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
     setIsMounted(true);
-    // Calculate suggestion on the client-side after hydration to avoid mismatch
     setSuggestion(getTradingSuggestion(token.rsi5m, token.rsi1h));
   }, [token.rsi5m, token.rsi1h]);
 
@@ -112,7 +108,7 @@ export function TokenCard({ token }: { token: TokenData }) {
               className="rounded-full border"
             />
             <div>
-              <CardTitle className="text-base font-bold font-headline leading-tight">{token.name}</CardTitle>
+              <CardTitle className="text-base font-bold leading-tight">{token.name}</CardTitle>
               <CardDescription className="text-sm">${token.symbol}</CardDescription>
             </div>
           </div>
@@ -127,7 +123,7 @@ export function TokenCard({ token }: { token: TokenData }) {
       <CardContent className="flex-grow p-4 pt-2">
         <div className="flex justify-between items-baseline">
             <p className="text-2xl font-semibold font-mono">{formatPrice(token.price)}</p>
-            <div className={`flex items-center gap-1 text-sm font-semibold ${isPositive ? 'text-primary' : 'text-destructive'}`}>
+            <div className={`flex items-center gap-1 text-sm font-semibold ${isPositive ? 'text-green-500' : 'text-destructive'}`}>
                 {isPositive ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
                 <span>{token.priceChange24h.toFixed(1)}%</span>
             </div>
