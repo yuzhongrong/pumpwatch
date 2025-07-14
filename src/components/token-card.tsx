@@ -39,12 +39,13 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 
 const getTradingSuggestion = (rsi5m: number, rsi1h: number) => {
     if (rsi5m < 30 && rsi1h < 30) {
-      return { text: '买入', variant: 'default' as const, icon: ShoppingCart }; // 'Buy'
+      return { text: '买入', variant: 'default' as const, icon: ShoppingCart }; // 'Buy' -> Green (default is primary color)
     }
     if (rsi5m < 30 && rsi1h > 30) {
-      return { text: '保守买入', variant: 'secondary' as const, icon: ShieldCheck }; // 'Conservative Buy'
+      return { text: '保守买入', variant: 'warning' as const, icon: ShieldCheck }; // 'Conservative Buy' -> Yellow
     }
-    return { text: '观望', variant: 'outline' as const, icon: Eye }; // 'Wait and see'
+    // All other cases are 'Wait and see' which is white (outline)
+    return { text: '观望', variant: 'outline' as const, icon: Eye }; // 'Wait and see' -> White
 };
 
 export function TokenCard({ token }: { token: TokenData }) {
