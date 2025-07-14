@@ -4,7 +4,7 @@ import { Header } from '@/components/header';
 import { TokenCard } from '@/components/token-card';
 import { tokens as defaultTokens, type TokenData } from '@/lib/data';
 import { Sidebar, SidebarContent, SidebarHeader, SidebarInset, SidebarMenu, SidebarMenuItem, SidebarMenuButton } from '@/components/ui/sidebar';
-import { Flame, Sparkles } from 'lucide-react';
+import { Flame, Sparkles, Rocket, Star } from 'lucide-react';
 import { useState } from 'react';
 
 function PageContent({ tokens }: { tokens: TokenData[] }) {
@@ -42,6 +42,18 @@ export default function Home() {
                 <SidebarMenuButton disabled>
                   <Sparkles />
                   <span>热门监控</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton disabled>
+                  <Rocket />
+                  <span>新代币</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton disabled>
+                  <Star />
+                  <span>我的关注</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>
