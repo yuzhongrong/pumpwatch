@@ -3,7 +3,7 @@
 import { Header } from '@/components/header';
 import { TokenCard } from '@/components/token-card';
 import { tokens as defaultTokens, newTokens, watchlistTokens, type TokenData } from '@/lib/data';
-import { Sidebar, SidebarContent, SidebarHeader, SidebarInset, SidebarMenu, SidebarMenuItem, SidebarMenuButton } from '@/components/ui/sidebar';
+import { Sidebar, SidebarContent, SidebarHeader, SidebarInset, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarRail } from '@/components/ui/sidebar';
 import { Flame, Sparkles, Rocket, Star } from 'lucide-react';
 import { useState } from 'react';
 
@@ -56,7 +56,8 @@ export default function Home() {
 
   return (
     <div className="flex">
-      <Sidebar>
+      <Sidebar collapsible="icon">
+        <SidebarRail />
         <SidebarHeader>
           <div className="flex items-center gap-3">
             <div className="flex-shrink-0">
