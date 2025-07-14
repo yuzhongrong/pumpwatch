@@ -5,8 +5,7 @@ import { AreaChart, Area, Tooltip, ResponsiveContainer } from 'recharts';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import type { TokenData } from '@/lib/data';
-import { TrendingUp, TrendingDown, Copy, Check } from 'lucide-react';
-import { Separator } from './ui/separator';
+import { TrendingUp, TrendingDown, Copy, Check, Eye, ShoppingCart, ShieldCheck } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from './ui/button';
 
@@ -38,12 +37,24 @@ const CustomTooltip = ({ active, payload, label }: any) => {
   return null;
 };
 
+const getTradingSuggestion = (rsi5m: number, rsi1h: number) => {
+    if (rsi5m < 30 && rsi1h < 30) {
+      return { text: '买入', variant: 'default' as const, icon: ShoppingCart }; // 'Buy'
+    }
+    if (rsi5m < 30 && rsi1h > 30) {
+      return { text: '保守买入', variant: 'secondary' as const, icon: ShieldCheck }; // 'Conservative Buy'
+    }
+    return { text: '观望', variant: 'outline' as const, icon: Eye }; // 'Wait and see'
+};
+
 export function TokenCard({ token }: { token: TokenData }) {
   const isPositive = token.priceChange24h >= 0;
   const primaryColor = 'hsl(var(--primary))';
   const destructiveColor = 'hsl(0 84.2% 60.2%)';
   const chartColor = isPositive ? primaryColor : destructiveColor;
   const [isCopied, setIsCopied] = useState(false);
+  const suggestion = getTradingSuggestion(token.rsi5m, token.rsi1h);
+  const SuggestionIcon = suggestion.icon;
 
   const copyAddress = () => {
     navigator.clipboard.writeText(token.contractAddress);
@@ -93,6 +104,10 @@ export function TokenCard({ token }: { token: TokenData }) {
               <CardDescription className="text-sm">${token.symbol}</CardDescription>
             </div>
           </div>
+            <Badge variant={suggestion.variant} className="flex items-center gap-1.5 shrink-0">
+                <SuggestionIcon className="h-3.5 w-3.5" />
+                {suggestion.text}
+            </Badge>
         </div>
       </CardHeader>
       <CardContent className="flex-grow p-4 pt-2">
@@ -129,11 +144,11 @@ export function TokenCard({ token }: { token: TokenData }) {
         </div>
         <div className="flex items-center gap-2">
             <div className="flex items-center gap-1">
-                <span>5m:</span>
+                <span className="text-muted-foreground/80">5m:</span>
                 <span className="font-mono font-medium text-foreground/80">{token.rsi5m}</span>
             </div>
              <div className="flex items-center gap-1">
-                <span>1h:</span>
+                <span className="text-muted-foreground/80">1h:</span>
                 <span className="font-mono font-medium text-foreground/80">{token.rsi1h}</span>
             </div>
         </div>
