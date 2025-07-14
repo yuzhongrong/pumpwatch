@@ -5,8 +5,10 @@ import { AreaChart, Area, Tooltip, ResponsiveContainer } from 'recharts';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import type { TokenData } from '@/lib/data';
-import { TrendingUp, TrendingDown } from 'lucide-react';
+import { TrendingUp, TrendingDown, Copy, Check } from 'lucide-react';
 import { Separator } from './ui/separator';
+import { useState } from 'react';
+import { Button } from './ui/button';
 
 const formatNumber = (num: number) => {
   if (num >= 1_000_000) return `${(num / 1_000_000).toFixed(2)}M`;
@@ -41,6 +43,15 @@ export function TokenCard({ token }: { token: TokenData }) {
   const primaryColor = 'hsl(var(--primary))';
   const destructiveColor = 'hsl(0 84.2% 60.2%)';
   const chartColor = isPositive ? primaryColor : destructiveColor;
+  const [isCopied, setIsCopied] = useState(false);
+
+  const copyAddress = () => {
+    navigator.clipboard.writeText(token.contractAddress);
+    setIsCopied(true);
+    setTimeout(() => {
+      setIsCopied(false);
+    }, 2000);
+  };
 
   return (
     <Card className="flex flex-col transition-all hover:shadow-lg hover:-translate-y-1 overflow-hidden bg-card border-border/60 hover:border-primary/50">
@@ -92,8 +103,26 @@ export function TokenCard({ token }: { token: TokenData }) {
                 <span>{token.priceChange24h.toFixed(1)}%</span>
             </div>
         </div>
+        <div className="mt-2 flex items-center gap-2 text-xs text-muted-foreground">
+            <span className="font-mono bg-muted/50 px-1.5 py-0.5 rounded">
+              {token.contractAddress.slice(0, 6)}...{token.contractAddress.slice(-4)}
+            </span>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-6 w-6"
+              onClick={copyAddress}
+              aria-label="Copy contract address"
+            >
+              {isCopied ? (
+                <Check className="h-3.5 w-3.5 text-primary" />
+              ) : (
+                <Copy className="h-3.5 w-3.5" />
+              )}
+            </Button>
+        </div>
       </CardContent>
-       <CardFooter className="px-4 pb-4 text-xs pt-2 flex justify-between items-center text-muted-foreground">
+       <CardFooter className="px-4 pb-4 text-xs pt-0 flex justify-between items-center text-muted-foreground">
          <div className="flex items-center gap-1">
             <span>MCap:</span>
             <span className="font-mono font-medium text-foreground/80">${formatNumber(token.marketCap)}</span>

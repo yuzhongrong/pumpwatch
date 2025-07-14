@@ -2,6 +2,7 @@ export type TokenData = {
   id: string;
   name: string;
   symbol: string;
+  contractAddress: string;
   price: number;
   priceChange24h: number;
   marketCap: number;
@@ -31,6 +32,7 @@ export const tokens: TokenData[] = [
     id: 'solana-cat',
     name: 'Solana Cat',
     symbol: 'SCAT',
+    contractAddress: '7x7k3e6YdK2h5yZ6c8A9b1D3fG5hJ7k9L2mN4pQ6rT8s',
     price: 0.00123,
     priceChange24h: 15.6,
     marketCap: 1230000,
@@ -45,6 +47,7 @@ export const tokens: TokenData[] = [
     id: 'pepe-pump',
     name: 'Pepe on Pump',
     symbol: 'PUMP',
+    contractAddress: 'F8t3hJ5kL9mN2pQ4rT6sV8wX1yZ3aC5bE7gH9jK1mL2n',
     price: 0.0000451,
     priceChange24h: -5.2,
     marketCap: 4500000,
@@ -59,6 +62,7 @@ export const tokens: TokenData[] = [
     id: 'doge-sol',
     name: 'Doge on Sol',
     symbol: 'DOGES',
+    contractAddress: '9b1D3fG5hJ7k9L2mN4pQ6rT8sA7x7k3e6YdK2h5yZ6c8',
     price: 0.00088,
     priceChange24h: 22.1,
     marketCap: 880000,
@@ -73,6 +77,7 @@ export const tokens: TokenData[] = [
     id: 'wizards-orb',
     name: 'Wizards Orb',
     symbol: 'WORB',
+    contractAddress: 'L2mN4pQ6rT8sV8wX1yZ3aC5bE7gH9jK1mL2nF8t3hJ5k',
     price: 1.12,
     priceChange24h: 7.8,
     marketCap: 1120000,
@@ -87,6 +92,7 @@ export const tokens: TokenData[] = [
     id: 'sol-raiders',
     name: 'Sol Raiders',
     symbol: 'RAID',
+    contractAddress: '3fG5hJ7k9L2mN4pQ6rT8sA7x7k3e6YdK2h5yZ6c8A9b1D',
     price: 0.25,
     priceChange24h: -11.4,
     marketCap: 2500000,
@@ -101,6 +107,7 @@ export const tokens: TokenData[] = [
     id: 'cyber-punked',
     name: 'Cyber Punked',
     symbol: 'CYBER',
+    contractAddress: 'pQ6rT8sA7x7k3e6YdK2h5yZ6c8A9b1D3fG5hJ7k9L2mN4',
     price: 0.78,
     priceChange24h: 35.2,
     marketCap: 7800000,
@@ -115,6 +122,7 @@ export const tokens: TokenData[] = [
     id: 'crypto-ninja',
     name: 'Crypto Ninja',
     symbol: 'CNINJA',
+    contractAddress: 'k9L2mN4pQ6rT8sA7x7k3e6YdK2h5yZ6c8A9b1D3fG5hJ7',
     price: 0.021,
     priceChange24h: 42.0,
     marketCap: 210000,
@@ -129,6 +137,7 @@ export const tokens: TokenData[] = [
     id: 'galaxy-quest',
     name: 'Galaxy Quest',
     symbol: 'GQT',
+    contractAddress: 'dK2h5yZ6c8A9b1D3fG5hJ7k9L2mN4pQ6rT8sA7x7k3e6Y',
     price: 3.45,
     priceChange24h: 18.9,
     marketCap: 34500000,
