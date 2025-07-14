@@ -1,10 +1,9 @@
 'use client';
 
 import { useFormStatus } from 'react-dom';
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Sparkles } from 'lucide-react';
-import { Skeleton } from './ui/skeleton';
 import { SidebarMenu, SidebarMenuItem, SidebarMenuButton } from './ui/sidebar';
 
 function SubmitButton({ onAnalysisStart, onAnalysisFinish }: { onAnalysisStart: () => void; onAnalysisFinish: () => void; }) {
@@ -16,8 +15,7 @@ function SubmitButton({ onAnalysisStart, onAnalysisFinish }: { onAnalysisStart: 
     } else {
       onAnalysisFinish();
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pending]);
+  }, [pending, onAnalysisStart, onAnalysisFinish]);
 
   return (
     <SidebarMenuButton type="submit" disabled={pending} tooltip="热门监控">
@@ -34,7 +32,6 @@ export function AITrendAnalyzer({ formAction, formState, onAnalysisStart, onAnal
     onAnalysisFinish: () => void;
 }) {
   const { toast } = useToast();
-  const { pending } = useFormStatus();
 
   useEffect(() => {
     if (formState.error) {
@@ -47,22 +44,12 @@ export function AITrendAnalyzer({ formAction, formState, onAnalysisStart, onAnal
   }, [formState.error, toast]);
 
   return (
-    <>
-      <SidebarMenu>
-        <SidebarMenuItem>
-          <form action={formAction}>
-            <SubmitButton onAnalysisStart={onAnalysisStart} onAnalysisFinish={onAnalysisFinish} />
-          </form>
-        </SidebarMenuItem>
-      </SidebarMenu>
-
-      {pending && (
-        <div className="mt-4 px-2 space-y-2">
-          <Skeleton className="h-4 w-full" />
-          <Skeleton className="h-4 w-full" />
-          <Skeleton className="h-4 w-3/4" />
-        </div>
-      )}
-    </>
+    <SidebarMenu>
+      <SidebarMenuItem>
+        <form action={formAction}>
+          <SubmitButton onAnalysisStart={onAnalysisStart} onAnalysisFinish={onAnalysisFinish} />
+        </form>
+      </SidebarMenuItem>
+    </SidebarMenu>
   );
 }
