@@ -3,57 +3,22 @@
 import { Header } from '@/components/header';
 import { TokenCard } from '@/components/token-card';
 import { tokens as defaultTokens, type TokenData } from '@/lib/data';
-import { Sidebar, SidebarContent, SidebarHeader, SidebarInset } from '@/components/ui/sidebar';
-import { AITrendAnalyzer } from '@/components/ai-trend-analyzer';
-import { Flame } from 'lucide-react';
-import { useState, useEffect, useActionState } from 'react';
-import { getAITrendSummary } from './actions';
-import { Skeleton } from '@/components/ui/skeleton';
-import { useFormStatus } from 'react-dom';
+import { Sidebar, SidebarContent, SidebarHeader, SidebarInset, SidebarMenu, SidebarMenuItem, SidebarMenuButton } from '@/components/ui/sidebar';
+import { Flame, Sparkles } from 'lucide-react';
+import { useState } from 'react';
 
-const initialState = {
-  summary: undefined,
-  tokens: defaultTokens,
-  error: undefined,
-  isTrendAnalysis: false,
-};
-
-function PageContent({ tokens, isLoading }: { tokens: TokenData[], isLoading: boolean }) {
+function PageContent({ tokens }: { tokens: TokenData[] }) {
   return (
-    <>
-      {isLoading ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {Array.from({ length: 8 }).map((_, index) => (
-            <div key={index} className="flex flex-col space-y-3">
-              <Skeleton className="h-[125px] w-full rounded-xl" />
-              <div className="space-y-2">
-                <Skeleton className="h-4 w-4/5" />
-                <Skeleton className="h-4 w-3/5" />
-              </div>
-            </div>
-          ))}
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {tokens.map((token) => (
-            <TokenCard key={token.id} token={token} />
-          ))}
-        </div>
-      )}
-    </>
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      {tokens.map((token) => (
+        <TokenCard key={token.id} token={token} />
+      ))}
+    </div>
   );
 }
 
 export default function Home() {
-  const [state, formAction] = useActionState(getAITrendSummary, initialState);
-  const { pending: isLoading } = useFormStatus();
-  const [displayedTokens, setDisplayedTokens] = useState<TokenData[]>(defaultTokens);
-
-  useEffect(() => {
-    if (state.isTrendAnalysis) {
-      setDisplayedTokens(state.tokens || []);
-    }
-  }, [state]);
+  const [displayedTokens] = useState<TokenData[]>(defaultTokens);
 
   return (
     <div className="flex">
@@ -72,17 +37,21 @@ export default function Home() {
         </SidebarHeader>
         <SidebarContent>
           <div className="p-2">
-            <AITrendAnalyzer 
-              formAction={formAction} 
-              formState={state}
-            />
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton disabled>
+                  <Sparkles />
+                  <span>热门监控</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
           </div>
         </SidebarContent>
       </Sidebar>
       <SidebarInset>
         <main className="flex-1 p-4 sm:p-6 lg:p-8">
           <Header />
-          <PageContent tokens={displayedTokens} isLoading={isLoading} />
+          <PageContent tokens={displayedTokens} />
         </main>
       </SidebarInset>
     </div>
