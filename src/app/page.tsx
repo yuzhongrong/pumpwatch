@@ -1,10 +1,9 @@
 import { Header } from '@/components/header';
 import { TokenCard } from '@/components/token-card';
 import { tokens } from '@/lib/data';
-import { Sidebar, SidebarContent, SidebarHeader, SidebarInset } from '@/components/ui/sidebar';
+import { Sidebar, SidebarContent, SidebarHeader, SidebarInset, SidebarMenu, SidebarMenuItem } from '@/components/ui/sidebar';
 import { AITrendAnalyzer } from '@/components/ai-trend-analyzer';
 import { Flame } from 'lucide-react';
-import { Separator } from '@/components/ui/separator';
 
 export default function Home() {
   const filteredTokens = tokens;
