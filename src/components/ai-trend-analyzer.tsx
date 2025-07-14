@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import { Bot, Loader2 } from 'lucide-react';
+import { Bot, Loader2, Sparkles } from 'lucide-react';
 import { Skeleton } from './ui/skeleton';
 
 const initialState = {
@@ -20,9 +20,9 @@ function AnalyzerForm({ summary }: { summary?: string }) {
 
   return (
     <>
-      <div className="flex flex-col sm:flex-row items-center gap-4">
+      <div className="flex flex-col gap-4">
         <Select name="timeframe" defaultValue="1 hour" required>
-          <SelectTrigger className="w-full sm:w-[180px]">
+          <SelectTrigger className="w-full">
             <SelectValue placeholder="Select timeframe" />
           </SelectTrigger>
           <SelectContent>
@@ -32,7 +32,7 @@ function AnalyzerForm({ summary }: { summary?: string }) {
             <SelectItem value="1 week">Last 7 Days</SelectItem>
           </SelectContent>
         </Select>
-        <Button type="submit" disabled={pending} className="w-full sm:w-auto">
+        <Button type="submit" disabled={pending} className="w-full">
           {pending ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -40,14 +40,14 @@ function AnalyzerForm({ summary }: { summary?: string }) {
             </>
           ) : (
             <>
-              <Bot className="mr-2 h-4 w-4" />
+              <Sparkles className="mr-2 h-4 w-4" />
               Analyze Trends
             </>
           )}
         </Button>
       </div>
       {pending && !summary && (
-        <div className="mt-6 space-y-2">
+        <div className="mt-4 space-y-2">
           <Skeleton className="h-4 w-full" />
           <Skeleton className="h-4 w-full" />
           <Skeleton className="h-4 w-3/4" />
@@ -72,22 +72,18 @@ export function AITrendAnalyzer() {
   }, [state.error, toast]);
 
   return (
-    <Card className="mb-8 overflow-hidden">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Bot className="text-primary" />
-          AI-Powered Trend Analysis
+    <Card className="overflow-hidden border-0 bg-transparent shadow-none">
+      <CardHeader className="p-0 mb-4">
+        <CardTitle className="flex items-center gap-2 text-base font-semibold">
+          AI Trend Analysis
         </CardTitle>
-        <CardDescription>
-          Let our AI analyze the latest market trends on Pump.fun for you. Select a timeframe and get an instant summary.
-        </CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="p-0">
         <form action={formAction}>
           <AnalyzerForm summary={state.summary} />
         </form>
         {state.summary && (
-          <div className="mt-6 rounded-lg border bg-secondary/50 p-4 animate-in fade-in-50">
+          <div className="mt-4 rounded-lg border bg-secondary/50 p-3 animate-in fade-in-50">
             <p className="text-sm text-secondary-foreground whitespace-pre-wrap">{state.summary}</p>
           </div>
         )}

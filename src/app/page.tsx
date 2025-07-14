@@ -1,34 +1,45 @@
 import { Header } from '@/components/header';
 import { TokenCard } from '@/components/token-card';
-import { AITrendAnalyzer } from '@/components/ai-trend-analyzer';
 import { tokens } from '@/lib/data';
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Sidebar, SidebarContent, SidebarHeader, SidebarInset } from '@/components/ui/sidebar';
+import { AITrendAnalyzer } from '@/components/ai-trend-analyzer';
+import { Flame } from 'lucide-react';
+import { Separator } from '@/components/ui/separator';
 
 export default function Home() {
-  // In a real app, filtering logic would be implemented here.
   const filteredTokens = tokens;
 
   return (
-    <main className="container mx-auto px-4 py-8">
-      <Header />
-      <AITrendAnalyzer />
-      
-      <div className="mb-6">
-        <Tabs defaultValue="24h" className="w-full overflow-x-auto">
-          <TabsList>
-            <TabsTrigger value="1h">1H</TabsTrigger>
-            <TabsTrigger value="6h">6H</TabsTrigger>
-            <TabsTrigger value="24h">24H</TabsTrigger>
-            <TabsTrigger value="7d">7D</TabsTrigger>
-          </TabsList>
-        </Tabs>
-      </div>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredTokens.map((token) => (
-          <TokenCard key={token.id} token={token} />
-        ))}
-      </div>
-    </main>
+    <div className="flex">
+      <Sidebar>
+        <SidebarHeader>
+          <div className="flex items-center gap-3">
+            <div className="flex-shrink-0">
+              <div className="grid place-content-center bg-primary/10 text-primary rounded-lg w-10 h-10">
+                <Flame className="h-5 w-5" />
+              </div>
+            </div>
+            <div className="group-data-[collapsible=icon]:hidden">
+              <h1 className="text-xl font-bold text-foreground font-headline">Pump Watch</h1>
+            </div>
+          </div>
+        </SidebarHeader>
+        <SidebarContent>
+           <div className="p-2">
+            <AITrendAnalyzer />
+           </div>
+        </SidebarContent>
+      </Sidebar>
+      <SidebarInset>
+        <main className="flex-1 p-4 sm:p-6 lg:p-8">
+          <Header />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {filteredTokens.map((token) => (
+              <TokenCard key={token.id} token={token} />
+            ))}
+          </div>
+        </main>
+      </SidebarInset>
+    </div>
   );
 }

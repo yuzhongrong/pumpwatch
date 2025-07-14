@@ -14,10 +14,10 @@ export type TokenData = {
 const generateChartData = () => {
   const data = [];
   let lastValue = Math.random() * 100 + 10;
-  for (let i = 0; i < 30; i++) {
+  for (let i = 0; i < 60; i++) {
     const change = (Math.random() - 0.48) * (lastValue * 0.1);
     lastValue = Math.max(1, lastValue + change);
-    data.push({ time: `T-${29 - i}`, value: lastValue });
+    data.push({ time: `T-${59 - i}`, value: lastValue });
   }
   return data;
 };
@@ -94,5 +94,29 @@ export const tokens: TokenData[] = [
     liquidity: 1200000,
     chartData: generateChartData(),
     aiHint: 'cyberpunk future'
+  },
+  {
+    id: 'crypto-ninja',
+    name: 'Crypto Ninja',
+    symbol: 'CNINJA',
+    price: 0.021,
+    priceChange24h: 42.0,
+    marketCap: 210000,
+    volume: 150000,
+    liquidity: 80000,
+    chartData: generateChartData(),
+    aiHint: 'ninja warrior'
+  },
+  {
+    id: 'galaxy-quest',
+    name: 'Galaxy Quest',
+    symbol: 'GQT',
+    price: 3.45,
+    priceChange24h: 18.9,
+    marketCap: 34500000,
+    volume: 7800000,
+    liquidity: 4200000,
+    chartData: generateChartData(),
+    aiHint: 'galaxy space'
   },
 ];

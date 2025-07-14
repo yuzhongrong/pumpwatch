@@ -5,7 +5,7 @@ import { AreaChart, Area, Tooltip, ResponsiveContainer } from 'recharts';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import type { TokenData } from '@/lib/data';
-import { TrendingUp, TrendingDown, BarChart, Droplets, CircleDollarSign } from 'lucide-react';
+import { TrendingUp, TrendingDown } from 'lucide-react';
 
 const formatNumber = (num: number) => {
   if (num >= 1_000_000) return `${(num / 1_000_000).toFixed(2)}M`;
@@ -14,11 +14,11 @@ const formatNumber = (num: number) => {
 };
 
 const formatPrice = (price: number): string => {
-  if (price > 0 && price < 0.0001) {
+  if (price > 0 && price < 0.000001) {
     return `$${price.toExponential(2)}`;
   }
   if (price < 1) {
-    return `$${price.toPrecision(3)}`;
+    return `$${price.toPrecision(4)}`;
   }
   return `$${price.toFixed(2)}`;
 };
@@ -37,13 +37,35 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 
 export function TokenCard({ token }: { token: TokenData }) {
   const isPositive = token.priceChange24h >= 0;
-  const primaryColor = 'hsl(278 88% 56%)';
+  const primaryColor = 'hsl(var(--primary))';
   const destructiveColor = 'hsl(0 84.2% 60.2%)';
   const chartColor = isPositive ? primaryColor : destructiveColor;
 
   return (
-    <Card className="flex flex-col transition-all hover:shadow-lg hover:-translate-y-1 overflow-hidden bg-card">
-      <CardHeader>
+    <Card className="flex flex-col transition-all hover:shadow-lg hover:-translate-y-1 overflow-hidden bg-card border-border/60 hover:border-primary/50">
+       <div className="h-24 w-full relative">
+          <ResponsiveContainer width="100%" height="100%">
+            <AreaChart data={token.chartData} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
+              <defs>
+                <linearGradient id={`color-${token.id}`} x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor={chartColor} stopOpacity={0.4}/>
+                  <stop offset="95%" stopColor={chartColor} stopOpacity={0}/>
+                </linearGradient>
+              </defs>
+              <Tooltip content={<CustomTooltip />} cursor={false} />
+              <Area
+                type="monotone"
+                dataKey="value"
+                stroke={chartColor}
+                strokeWidth={2}
+                fillOpacity={1}
+                fill={`url(#color-${token.id})`}
+                isAnimationActive={false}
+              />
+            </AreaChart>
+          </ResponsiveContainer>
+        </div>
+      <CardHeader className="pt-4 px-4 pb-2">
         <div className="flex items-start justify-between gap-4">
           <div className="flex items-center gap-3">
             <Image
@@ -55,54 +77,25 @@ export function TokenCard({ token }: { token: TokenData }) {
               className="rounded-full border"
             />
             <div>
-              <CardTitle className="text-lg font-headline">{token.name}</CardTitle>
-              <CardDescription>${token.symbol}</CardDescription>
-            </div>
-          </div>
-          <div className="text-right flex-shrink-0">
-            <p className="text-lg font-semibold">{formatPrice(token.price)}</p>
-            <div className="flex justify-end">
-                <Badge variant={isPositive ? 'default' : 'destructive'} className="flex items-center gap-1">
-                {isPositive ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
-                <span>{token.priceChange24h.toFixed(1)}%</span>
-                </Badge>
+              <CardTitle className="text-base font-bold font-headline leading-tight">{token.name}</CardTitle>
+              <CardDescription className="text-sm">${token.symbol}</CardDescription>
             </div>
           </div>
         </div>
       </CardHeader>
-      <CardContent className="flex-grow p-0">
-        <div className="h-24 w-full">
-          <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={token.chartData} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
-              <Tooltip content={<CustomTooltip />} cursor={{ stroke: 'hsl(var(--primary))', strokeWidth: 1, strokeDasharray: '3 3' }} />
-              <Area
-                type="monotone"
-                dataKey="value"
-                stroke={chartColor}
-                strokeWidth={2}
-                fillOpacity={0.1}
-                fill={chartColor}
-                isAnimationActive={false}
-              />
-            </AreaChart>
-          </ResponsiveContainer>
+      <CardContent className="flex-grow p-4 pt-2">
+        <div className="flex justify-between items-baseline">
+            <p className="text-2xl font-semibold font-mono">{formatPrice(token.price)}</p>
+            <div className={`flex items-center gap-1 text-sm font-semibold ${isPositive ? 'text-primary' : 'text-destructive'}`}>
+                {isPositive ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
+                <span>{token.priceChange24h.toFixed(1)}%</span>
+            </div>
         </div>
       </CardContent>
-      <CardFooter className="grid grid-cols-3 gap-2 text-xs pt-4 border-t">
-        <div className="flex flex-col items-center text-center gap-1">
-            <CircleDollarSign className="h-4 w-4 text-muted-foreground"/>
-            <span className="font-semibold text-muted-foreground">MCap</span>
-            <span className="font-mono font-medium text-foreground">${formatNumber(token.marketCap)}</span>
-        </div>
-        <div className="flex flex-col items-center text-center gap-1">
-            <BarChart className="h-4 w-4 text-muted-foreground"/>
-            <span className="font-semibold text-muted-foreground">Volume</span>
-            <span className="font-mono font-medium text-foreground">${formatNumber(token.volume)}</span>
-        </div>
-        <div className="flex flex-col items-center text-center gap-1">
-            <Droplets className="h-4 w-4 text-muted-foreground"/>
-            <span className="font-semibold text-muted-foreground">Liquidity</span>
-            <span className="font-mono font-medium text-foreground">${formatNumber(token.liquidity)}</span>
+       <CardFooter className="px-4 pb-4 text-xs pt-2">
+         <div className="flex items-center gap-1 text-muted-foreground">
+            <span>MCap:</span>
+            <span className="font-mono font-medium text-foreground/80">${formatNumber(token.marketCap)}</span>
         </div>
       </CardFooter>
     </Card>
