@@ -6,8 +6,7 @@ import { tokens as defaultTokens, type TokenData } from '@/lib/data';
 import { Sidebar, SidebarContent, SidebarHeader, SidebarInset } from '@/components/ui/sidebar';
 import { AITrendAnalyzer } from '@/components/ai-trend-analyzer';
 import { Flame } from 'lucide-react';
-import { useState, useEffect } from 'react';
-import { useFormState } from 'react-dom';
+import { useState, useEffect, useActionState } from 'react';
 import { getAITrendSummary } from './actions';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -19,7 +18,7 @@ const initialState = {
 };
 
 export default function Home() {
-  const [state, formAction] = useFormState(getAITrendSummary, initialState);
+  const [state, formAction] = useActionState(getAITrendSummary, initialState);
   const [displayedTokens, setDisplayedTokens] = useState<TokenData[]>(defaultTokens);
   const [isLoading, setIsLoading] = useState(false);
 
