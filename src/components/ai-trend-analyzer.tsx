@@ -16,7 +16,7 @@ function SubmitButton({ onAnalysisStart, onAnalysisFinish }: { onAnalysisStart: 
     } else {
       onAnalysisFinish();
     }
-  }, [pending, onAnalysisStart, onAnalysisFinish]);
+  }, [pending]);
 
   return (
     <SidebarMenuButton type="submit" disabled={pending} tooltip="热门监控">
