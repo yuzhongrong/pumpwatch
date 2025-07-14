@@ -57,8 +57,10 @@ export function TokenCard({ token }: { token: TokenData }) {
   const chartColor = isPositive ? primaryColor : destructiveColor;
   const [isCopied, setIsCopied] = useState(false);
   const [suggestion, setSuggestion] = useState<Suggestion | null>(null);
+  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
+    setIsMounted(true);
     // Calculate suggestion on the client-side after hydration to avoid mismatch
     setSuggestion(getTradingSuggestion(token.rsi5m, token.rsi1h));
   }, [token.rsi5m, token.rsi1h]);
@@ -157,11 +159,11 @@ export function TokenCard({ token }: { token: TokenData }) {
         <div className="flex items-center gap-2">
             <div className="flex items-center gap-1">
                 <span className="text-muted-foreground/80">5m:</span>
-                <span className="font-mono font-medium text-foreground/80">{token.rsi5m}</span>
+                <span className="font-mono font-medium text-foreground/80">{isMounted ? token.rsi5m : '...'}</span>
             </div>
              <div className="flex items-center gap-1">
                 <span className="text-muted-foreground/80">1h:</span>
-                <span className="font-mono font-medium text-foreground/80">{token.rsi1h}</span>
+                <span className="font-mono font-medium text-foreground/80">{isMounted ? token.rsi1h : '...'}</span>
             </div>
         </div>
       </CardFooter>
