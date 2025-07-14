@@ -7,6 +7,8 @@ export type TokenData = {
   marketCap: number;
   volume: number;
   liquidity: number;
+  rsi5m: number;
+  rsi1h: number;
   chartData: { time: string; value: number }[];
   aiHint: string;
 };
@@ -22,6 +24,8 @@ const generateChartData = () => {
   return data;
 };
 
+const generateRsi = () => Math.floor(Math.random() * 70) + 15; // RSI between 15 and 85
+
 export const tokens: TokenData[] = [
   {
     id: 'solana-cat',
@@ -32,6 +36,8 @@ export const tokens: TokenData[] = [
     marketCap: 1230000,
     volume: 540000,
     liquidity: 250000,
+    rsi5m: generateRsi(),
+    rsi1h: generateRsi(),
     chartData: generateChartData(),
     aiHint: 'cat animal'
   },
@@ -44,6 +50,8 @@ export const tokens: TokenData[] = [
     marketCap: 4500000,
     volume: 1200000,
     liquidity: 600000,
+    rsi5m: generateRsi(),
+    rsi1h: generateRsi(),
     chartData: generateChartData(),
     aiHint: 'frog meme'
   },
@@ -56,6 +64,8 @@ export const tokens: TokenData[] = [
     marketCap: 880000,
     volume: 310000,
     liquidity: 150000,
+    rsi5m: generateRsi(),
+    rsi1h: generateRsi(),
     chartData: generateChartData(),
     aiHint: 'doge meme'
   },
@@ -68,6 +78,8 @@ export const tokens: TokenData[] = [
     marketCap: 1120000,
     volume: 450000,
     liquidity: 300000,
+    rsi5m: generateRsi(),
+    rsi1h: generateRsi(),
     chartData: generateChartData(),
     aiHint: 'wizard magic'
   },
@@ -80,6 +92,8 @@ export const tokens: TokenData[] = [
     marketCap: 2500000,
     volume: 900000,
     liquidity: 500000,
+    rsi5m: generateRsi(),
+    rsi1h: generateRsi(),
     chartData: generateChartData(),
     aiHint: 'pirate game'
   },
@@ -92,6 +106,8 @@ export const tokens: TokenData[] = [
     marketCap: 7800000,
     volume: 2500000,
     liquidity: 1200000,
+    rsi5m: generateRsi(),
+    rsi1h: generateRsi(),
     chartData: generateChartData(),
     aiHint: 'cyberpunk future'
   },
@@ -104,6 +120,8 @@ export const tokens: TokenData[] = [
     marketCap: 210000,
     volume: 150000,
     liquidity: 80000,
+    rsi5m: generateRsi(),
+    rsi1h: generateRsi(),
     chartData: generateChartData(),
     aiHint: 'ninja warrior'
   },
@@ -116,6 +134,8 @@ export const tokens: TokenData[] = [
     marketCap: 34500000,
     volume: 7800000,
     liquidity: 4200000,
+    rsi5m: generateRsi(),
+    rsi1h: generateRsi(),
     chartData: generateChartData(),
     aiHint: 'galaxy space'
   },

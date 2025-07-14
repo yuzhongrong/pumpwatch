@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Badge } from '@/components/ui/badge';
 import type { TokenData } from '@/lib/data';
 import { TrendingUp, TrendingDown } from 'lucide-react';
+import { Separator } from './ui/separator';
 
 const formatNumber = (num: number) => {
   if (num >= 1_000_000) return `${(num / 1_000_000).toFixed(2)}M`;
@@ -92,10 +93,20 @@ export function TokenCard({ token }: { token: TokenData }) {
             </div>
         </div>
       </CardContent>
-       <CardFooter className="px-4 pb-4 text-xs pt-2">
-         <div className="flex items-center gap-1 text-muted-foreground">
+       <CardFooter className="px-4 pb-4 text-xs pt-2 flex justify-between items-center text-muted-foreground">
+         <div className="flex items-center gap-1">
             <span>MCap:</span>
             <span className="font-mono font-medium text-foreground/80">${formatNumber(token.marketCap)}</span>
+        </div>
+        <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1">
+                <span>5m:</span>
+                <span className="font-mono font-medium text-foreground/80">{token.rsi5m}</span>
+            </div>
+             <div className="flex items-center gap-1">
+                <span>1h:</span>
+                <span className="font-mono font-medium text-foreground/80">{token.rsi1h}</span>
+            </div>
         </div>
       </CardFooter>
     </Card>
