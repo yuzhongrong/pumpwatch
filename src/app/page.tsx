@@ -4,10 +4,10 @@ import { Header } from '@/components/header';
 import { TokenCard } from '@/components/token-card';
 import { tokens as defaultTokens, newTokens, watchlistTokens, type TokenData } from '@/lib/data';
 import { Sidebar, SidebarContent, SidebarHeader, SidebarInset, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarRail } from '@/components/ui/sidebar';
-import { Flame, Sparkles, Rocket, Star } from 'lucide-react';
+import { Flame, Sparkles, Rocket, Star, Users } from 'lucide-react';
 import { useState } from 'react';
 
-type MenuKey = 'hot' | 'new' | 'watchlist';
+type MenuKey = 'hot' | 'new' | 'watchlist' | 'community';
 
 const menuConfig: Record<MenuKey, { title: string; tokens: TokenData[], icon: React.ElementType, label: string }> = {
   hot: {
@@ -27,6 +27,12 @@ const menuConfig: Record<MenuKey, { title: string; tokens: TokenData[], icon: Re
     tokens: watchlistTokens,
     icon: Star,
     label: '我的关注'
+  },
+  community: {
+    title: '社区',
+    tokens: [],
+    icon: Users,
+    label: '社区'
   }
 };
 
