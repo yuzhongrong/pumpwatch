@@ -112,7 +112,7 @@ export function TokenCard({ token }: { token: TokenData }) {
               <CardDescription className="text-sm">${token.symbol}</CardDescription>
             </div>
           </div>
-            {suggestion && SuggestionIcon && (
+            {isMounted && suggestion && SuggestionIcon && (
                 <Badge variant={suggestion.variant} className="flex items-center gap-1.5 shrink-0">
                     <SuggestionIcon className="h-3.5 w-3.5" />
                     {suggestion.text}
@@ -123,7 +123,7 @@ export function TokenCard({ token }: { token: TokenData }) {
       <CardContent className="flex-grow p-4 pt-2">
         <div className="flex justify-between items-baseline">
             <p className="text-2xl font-semibold font-mono">{formatPrice(token.price)}</p>
-            <div className={`flex items-center gap-1 text-sm font-semibold ${isPositive ? 'text-green-500' : 'text-destructive'}`}>
+            <div className={`flex items-center gap-1 text-sm font-semibold ${isPositive ? 'text-primary' : 'text-destructive'}`}>
                 {isPositive ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
                 <span>{token.priceChange24h.toFixed(1)}%</span>
             </div>
