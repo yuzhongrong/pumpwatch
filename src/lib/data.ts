@@ -149,3 +149,56 @@ export const tokens: TokenData[] = [
     aiHint: 'galaxy space'
   },
 ];
+
+export const defaultTokens = tokens;
+
+export const newTokens: TokenData[] = [
+    {
+    id: 'pixel-pioneer',
+    name: 'Pixel Pioneer',
+    symbol: 'PIXEL',
+    contractAddress: 'A7x7k3e6YdK2h5yZ6c8A9b1D3fG5hJ7k9L2mN4pQ6rT8',
+    price: 0.05,
+    priceChange24h: 150.5,
+    marketCap: 50000,
+    volume: 200000,
+    liquidity: 30000,
+    rsi5m: generateRsi(),
+    rsi1h: generateRsi(),
+    chartData: generateChartData(),
+    aiHint: 'pixel art'
+  },
+  {
+    id: 'mech-mayhem',
+    name: 'Mech Mayhem',
+    symbol: 'MECH',
+    contractAddress: 'B8y8k4f7ZeL3i6xW7d9B2E4hH6jL8nO5rS9vU2wZ4bC1',
+    price: 0.12,
+    priceChange24h: 88.2,
+    marketCap: 120000,
+    volume: 450000,
+    liquidity: 90000,
+    rsi5m: generateRsi(),
+    rsi1h: generateRsi(),
+    chartData: generateChartData(),
+    aiHint: 'robot mech'
+  }
+];
+
+export const watchlistTokens: TokenData[] = [
+    {
+    id: 'solana-cat',
+    name: 'Solana Cat',
+    symbol: 'SCAT',
+    contractAddress: '7x7k3e6YdK2h5yZ6c8A9b1D3fG5hJ7k9L2mN4pQ6rT8s',
+    price: 0.00123,
+    priceChange24h: 15.6,
+    marketCap: 1230000,
+    volume: 540000,
+    liquidity: 250000,
+    rsi5m: generateRsi(),
+    rsi1h: generateRsi(),
+    chartData: generateChartData(),
+    aiHint: 'cat animal'
+  },
+];
