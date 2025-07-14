@@ -1,55 +1,60 @@
 'use client';
 
-import { useFormState, useFormStatus } from 'react-dom';
-import { getAITrendSummary } from '@/app/actions';
+import { useFormStatus } from 'react-dom';
 import { useEffect, useRef } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Sparkles } from 'lucide-react';
 import { Skeleton } from './ui/skeleton';
 import { SidebarMenu, SidebarMenuItem, SidebarMenuButton } from './ui/sidebar';
 
-const initialState = {
-  summary: undefined,
-  error: undefined,
-};
-
-function SubmitButton() {
+function SubmitButton({ onAnalysisStart, onAnalysisFinish }: { onAnalysisStart: () => void; onAnalysisFinish: () => void; }) {
   const { pending } = useFormStatus();
+
+  useEffect(() => {
+    if (pending) {
+      onAnalysisStart();
+    } else {
+      onAnalysisFinish();
+    }
+  }, [pending, onAnalysisStart, onAnalysisFinish]);
+
   return (
     <SidebarMenuButton type="submit" disabled={pending} tooltip="热门监控">
-      <Sparkles />
+      {pending ? <Loader2 className="animate-spin" /> : <Sparkles />}
       <span>热门监控</span>
     </SidebarMenuButton>
   );
 }
 
-export function AITrendAnalyzer() {
-  const [state, formAction] = useFormState(getAITrendSummary, initialState);
+export function AITrendAnalyzer({ formAction, formState, onAnalysisStart, onAnalysisFinish }: { 
+    formAction: (payload: FormData) => void;
+    formState: { summary?: string; error?: string };
+    onAnalysisStart: () => void;
+    onAnalysisFinish: () => void;
+}) {
   const { toast } = useToast();
-  const formRef = useRef<HTMLFormElement>(null);
-
   const { pending } = useFormStatus();
 
   useEffect(() => {
-    if (state.error) {
+    if (formState.error) {
       toast({
         variant: 'destructive',
         title: 'Analysis Failed',
-        description: state.error,
+        description: formState.error,
       });
     }
-  }, [state.error, toast]);
+  }, [formState.error, toast]);
 
   return (
     <>
       <SidebarMenu>
         <SidebarMenuItem>
-          <form action={formAction} ref={formRef}>
-            <SubmitButton />
+          <form action={formAction}>
+            <SubmitButton onAnalysisStart={onAnalysisStart} onAnalysisFinish={onAnalysisFinish} />
           </form>
         </SidebarMenuItem>
       </SidebarMenu>
-      
+
       {pending && (
         <div className="mt-4 px-2 space-y-2">
           <Skeleton className="h-4 w-full" />
@@ -58,9 +63,9 @@ export function AITrendAnalyzer() {
         </div>
       )}
 
-      {state.summary && !pending && (
+      {formState.summary && !pending && (
         <div className="mt-4 rounded-lg border bg-secondary/50 p-3 mx-2 animate-in fade-in-50">
-          <p className="text-sm text-secondary-foreground whitespace-pre-wrap">{state.summary}</p>
+          <p className="text-sm text-secondary-foreground whitespace-pre-wrap">{formState.summary}</p>
         </div>
       )}
     </>
