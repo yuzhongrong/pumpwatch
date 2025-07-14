@@ -16,6 +16,7 @@ function SubmitButton({ onAnalysisStart, onAnalysisFinish }: { onAnalysisStart: 
     } else {
       onAnalysisFinish();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pending]);
 
   return (
@@ -60,12 +61,6 @@ export function AITrendAnalyzer({ formAction, formState, onAnalysisStart, onAnal
           <Skeleton className="h-4 w-full" />
           <Skeleton className="h-4 w-full" />
           <Skeleton className="h-4 w-3/4" />
-        </div>
-      )}
-
-      {formState.summary && !pending && (
-        <div className="mt-4 rounded-lg border bg-secondary/50 p-3 mx-2 animate-in fade-in-50">
-          <p className="text-sm text-secondary-foreground whitespace-pre-wrap">{formState.summary}</p>
         </div>
       )}
     </>
