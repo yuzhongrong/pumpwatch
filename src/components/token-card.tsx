@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Badge } from '@/components/ui/badge';
 import type { TokenData } from '@/lib/data';
 import { TrendingUp, TrendingDown, Copy, Check, Eye, ShoppingCart, ShieldCheck } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from './ui/button';
 
 const formatNumber = (num: number) => {
@@ -48,14 +48,21 @@ const getTradingSuggestion = (rsi5m: number, rsi1h: number) => {
     return { text: '观望', variant: 'outline' as const, icon: Eye }; // 'Wait and see' -> White
 };
 
+type Suggestion = ReturnType<typeof getTradingSuggestion>;
+
 export function TokenCard({ token }: { token: TokenData }) {
   const isPositive = token.priceChange24h >= 0;
   const primaryColor = 'hsl(var(--primary))';
   const destructiveColor = 'hsl(0 84.2% 60.2%)';
   const chartColor = isPositive ? primaryColor : destructiveColor;
   const [isCopied, setIsCopied] = useState(false);
-  const suggestion = getTradingSuggestion(token.rsi5m, token.rsi1h);
-  const SuggestionIcon = suggestion.icon;
+  const [suggestion, setSuggestion] = useState<Suggestion | null>(null);
+
+  useEffect(() => {
+    // Calculate suggestion on the client-side after hydration to avoid mismatch
+    setSuggestion(getTradingSuggestion(token.rsi5m, token.rsi1h));
+  }, [token.rsi5m, token.rsi1h]);
+
 
   const copyAddress = () => {
     navigator.clipboard.writeText(token.contractAddress);
@@ -64,6 +71,8 @@ export function TokenCard({ token }: { token: TokenData }) {
       setIsCopied(false);
     }, 2000);
   };
+  
+  const SuggestionIcon = suggestion?.icon;
 
   return (
     <Card className="flex flex-col transition-all hover:shadow-lg hover:-translate-y-1 overflow-hidden bg-card border-border/60 hover:border-primary/50">
@@ -105,10 +114,12 @@ export function TokenCard({ token }: { token: TokenData }) {
               <CardDescription className="text-sm">${token.symbol}</CardDescription>
             </div>
           </div>
-            <Badge variant={suggestion.variant} className="flex items-center gap-1.5 shrink-0">
-                <SuggestionIcon className="h-3.5 w-3.5" />
-                {suggestion.text}
-            </Badge>
+            {suggestion && SuggestionIcon && (
+                <Badge variant={suggestion.variant} className="flex items-center gap-1.5 shrink-0">
+                    <SuggestionIcon className="h-3.5 w-3.5" />
+                    {suggestion.text}
+                </Badge>
+            )}
         </div>
       </CardHeader>
       <CardContent className="flex-grow p-4 pt-2">
