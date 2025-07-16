@@ -2,35 +2,31 @@
 
 import { Header } from '@/components/header';
 import { TokenCard } from '@/components/token-card';
-import { tokens as defaultTokens, newTokens, watchlistTokens, type TokenData } from '@/lib/data';
+import { TokenData } from '@/lib/data';
 import { Sidebar, SidebarContent, SidebarHeader, SidebarInset, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarRail } from '@/components/ui/sidebar';
 import { Flame, Sparkles, Rocket, Star, Users } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 type MenuKey = 'hot' | 'new' | 'watchlist' | 'community';
 
-const menuConfig: Record<MenuKey, { title: string; tokens: TokenData[], icon: React.ElementType, label: string }> = {
+const menuConfig: Record<MenuKey, { title: string; icon: React.ElementType, label: string }> = {
   hot: {
     title: '热门监控',
-    tokens: defaultTokens,
     icon: Sparkles,
     label: '热门监控'
   },
   new: {
     title: '新代币',
-    tokens: newTokens,
     icon: Rocket,
     label: '新代币'
   },
   watchlist: {
     title: '我的关注',
-    tokens: watchlistTokens,
     icon: Star,
     label: '我的关注'
   },
   community: {
     title: '社区',
-    tokens: [],
     icon: Users,
     label: '社区'
   }
@@ -40,7 +36,7 @@ function PageContent({ title, tokens }: { title: string; tokens: TokenData[] }) 
   return (
     <div>
       <h2 className="text-3xl font-bold tracking-tight text-foreground mb-6">{title}</h2>
-      {tokens.length > 0 ? (
+      {tokens && tokens.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {tokens.map((token) => (
             <TokenCard key={token.id} token={token} />
@@ -58,7 +54,42 @@ function PageContent({ title, tokens }: { title: string; tokens: TokenData[] }) 
 
 export default function Home() {
   const [activeMenu, setActiveMenu] = useState<MenuKey>('hot');
-  const { title, tokens } = menuConfig[activeMenu];
+  const [tokens, setTokens] = useState<TokenData[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchData() {
+      setLoading(true);
+      try {
+        const response = await fetch('https://studio--api-navigator-1owsj.us-central1.hosted.app/api/rsi');
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const data: TokenData[] = await response.json();
+        
+        // Simple filtering for different menus for demonstration
+        if (activeMenu === 'hot') {
+          setTokens(data);
+        } else if (activeMenu === 'new') {
+           setTokens(data.slice(0, 2));
+        } else if (activeMenu === 'watchlist') {
+           setTokens(data.slice(2, 4));
+        } else {
+          setTokens([]);
+        }
+
+      } catch (error) {
+        console.error("Failed to fetch tokens:", error);
+        setTokens([]);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchData();
+  }, [activeMenu]);
+
+  const { title } = menuConfig[activeMenu];
 
   return (
     <div className="flex">
@@ -102,7 +133,7 @@ export default function Home() {
       <SidebarInset>
         <main className="flex-1 p-6 lg:p-8">
           <Header />
-          <PageContent title={title} tokens={tokens} />
+          {loading ? <p>Loading...</p> : <PageContent title={title} tokens={tokens} />}
         </main>
       </SidebarInset>
     </div>

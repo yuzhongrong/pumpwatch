@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import { AreaChart, Area, Tooltip, ResponsiveContainer } from 'recharts';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge, badgeVariants } from '@/components/ui/badge';
+import { Badge } from '@/components/ui/badge';
 import type { TokenData } from '@/lib/data';
 import { TrendingUp, TrendingDown, Copy, Check, Eye, ShoppingCart, ShieldCheck } from 'lucide-react';
 import { useState, useEffect } from 'react';
@@ -30,7 +30,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
     return (
       <div className="rounded-lg border bg-background/90 p-2 shadow-sm animate-in fade-in-50">
         <p className="text-sm font-bold text-foreground">{formatPrice(payload[0].value)}</p>
-        <p className="text-xs text-muted-foreground">{label}</p>
+        <p className="text-xs text-muted-foreground">{new Date(label).toLocaleTimeString()}</p>
       </div>
     );
   }
@@ -50,7 +50,7 @@ const getTradingSuggestion = (rsi5m: number, rsi1h: number) => {
 type Suggestion = ReturnType<typeof getTradingSuggestion>;
 
 export function TokenCard({ token }: { token: TokenData }) {
-  const isPositive = token.priceChange24h >= 0;
+  const isPositive = token.priceChange.h24 >= 0;
   const chartColor = isPositive ? 'hsl(var(--primary))' : 'hsl(var(--destructive))';
   const [isCopied, setIsCopied] = useState(false);
   const [suggestion, setSuggestion] = useState<Suggestion | null>(null);
@@ -58,12 +58,12 @@ export function TokenCard({ token }: { token: TokenData }) {
 
   useEffect(() => {
     setIsMounted(true);
-    setSuggestion(getTradingSuggestion(token.rsi5m, token.rsi1h));
-  }, [token.rsi5m, token.rsi1h]);
+    setSuggestion(getTradingSuggestion(token['rsi-5m'], token['rsi-1h']));
+  }, [token]);
 
 
   const copyAddress = () => {
-    navigator.clipboard.writeText(token.contractAddress);
+    navigator.clipboard.writeText(token.tokenContractAddress);
     setIsCopied(true);
     setTimeout(() => {
       setIsCopied(false);
@@ -72,13 +72,17 @@ export function TokenCard({ token }: { token: TokenData }) {
   
   const SuggestionIcon = suggestion?.icon;
 
+  const chartData = token['rsi_200_5m']
+    .map(d => ({ time: parseInt(d[0]), value: parseFloat(d[4]) }))
+    .sort((a, b) => a.time - b.time);
+
   return (
     <Card className="flex flex-col transition-all hover:shadow-lg hover:-translate-y-1 overflow-hidden bg-card border-border/60 hover:border-primary/50">
        <div className="h-24 w-full relative">
           <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={token.chartData} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
+            <AreaChart data={chartData} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
               <defs>
-                <linearGradient id={`color-${token.id}`} x1="0" y1="0" x2="0" y2="1">
+                <linearGradient id={`color-${token.tokenContractAddress}`} x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor={chartColor} stopOpacity={0.4}/>
                   <stop offset="95%" stopColor={chartColor} stopOpacity={0}/>
                 </linearGradient>
@@ -90,7 +94,7 @@ export function TokenCard({ token }: { token: TokenData }) {
                 stroke={chartColor}
                 strokeWidth={2}
                 fillOpacity={1}
-                fill={`url(#color-${token.id})`}
+                fill={`url(#color-${token.tokenContractAddress})`}
                 isAnimationActive={false}
               />
             </AreaChart>
@@ -100,15 +104,15 @@ export function TokenCard({ token }: { token: TokenData }) {
         <div className="flex items-start justify-between gap-4">
           <div className="flex items-center gap-3">
             <Image
-              src={`https://placehold.co/40x40.png`}
-              data-ai-hint={token.aiHint}
-              alt={`${token.name} logo`}
+              src={token.info.imageUrl || `https://placehold.co/40x40.png`}
+              alt={`${token.symbol} logo`}
               width={40}
               height={40}
               className="rounded-full border"
+              unoptimized
             />
             <div>
-              <CardTitle className="text-base font-bold leading-tight">{token.name}</CardTitle>
+              <CardTitle className="text-base font-bold leading-tight">{token.symbol}</CardTitle>
               <CardDescription className="text-sm">${token.symbol}</CardDescription>
             </div>
           </div>
@@ -122,15 +126,15 @@ export function TokenCard({ token }: { token: TokenData }) {
       </CardHeader>
       <CardContent className="flex-grow p-4 pt-2">
         <div className="flex justify-between items-baseline">
-            <p className="text-2xl font-semibold font-mono">{formatPrice(token.price)}</p>
+            <p className="text-2xl font-semibold font-mono">{formatPrice(parseFloat(token.priceUsd))}</p>
             <div className={`flex items-center gap-1 text-sm font-semibold ${isPositive ? 'text-primary' : 'text-destructive'}`}>
                 {isPositive ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
-                <span>{token.priceChange24h.toFixed(1)}%</span>
+                <span>{token.priceChange.h24.toFixed(1)}%</span>
             </div>
         </div>
         <div className="mt-2 flex items-center gap-2 text-xs text-muted-foreground">
             <span className="font-mono bg-muted/50 px-1.5 py-0.5 rounded">
-              {token.contractAddress.slice(0, 6)}...{token.contractAddress.slice(-4)}
+              {token.tokenContractAddress.slice(0, 6)}...{token.tokenContractAddress.slice(-4)}
             </span>
             <Button
               variant="ghost"
@@ -155,11 +159,11 @@ export function TokenCard({ token }: { token: TokenData }) {
         <div className="flex items-center gap-2">
             <div className="flex items-center gap-1">
                 <span className="text-muted-foreground/80">5m:</span>
-                <span className="font-mono font-medium text-foreground/80">{isMounted ? token.rsi5m : '...'}</span>
+                <span className="font-mono font-medium text-foreground/80">{isMounted ? token['rsi-5m'].toFixed(0) : '...'}</span>
             </div>
              <div className="flex items-center gap-1">
                 <span className="text-muted-foreground/80">1h:</span>
-                <span className="font-mono font-medium text-foreground/80">{isMounted ? token.rsi1h : '...'}</span>
+                <span className="font-mono font-medium text-foreground/80">{isMounted ? token['rsi-1h'].toFixed(0) : '...'}</span>
             </div>
         </div>
       </CardFooter>
