@@ -5,7 +5,7 @@ import { AreaChart, Area, Tooltip, ResponsiveContainer } from 'recharts';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import type { TokenData } from '@/lib/data';
-import { TrendingUp, TrendingDown, Copy, Check, Eye, ShoppingCart, ShieldCheck } from 'lucide-react';
+import { TrendingUp, TrendingDown, Copy, Check, Eye, ShoppingCart, ShieldCheck, ExternalLink } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { Button } from './ui/button';
 
@@ -136,14 +136,14 @@ export function TokenCard({ token }: { token: TokenData }) {
                 <span>{token.priceChange ? `${token.priceChange.h24.toFixed(1)}%` : '...'}</span>
             </div>
         </div>
-        <div className="mt-2 flex items-center gap-2 text-xs text-muted-foreground">
-            <span className="font-mono bg-muted/50 px-1.5 py-0.5 rounded">
-              {token.tokenContractAddress.slice(0, 6)}...{token.tokenContractAddress.slice(-4)}
+        <div className="mt-2 flex items-center gap-1 text-xs text-muted-foreground">
+            <span className="font-mono bg-muted/50 px-1.5 py-0.5 rounded truncate">
+              {token.tokenContractAddress}
             </span>
             <Button
               variant="ghost"
               size="icon"
-              className="h-6 w-6"
+              className="h-6 w-6 shrink-0"
               onClick={copyAddress}
               aria-label="Copy contract address"
             >
@@ -153,6 +153,16 @@ export function TokenCard({ token }: { token: TokenData }) {
                 <Copy className="h-3.5 w-3.5" />
               )}
             </Button>
+            <a href={`https://gmgn.ai/sol/token/${token.tokenContractAddress}`} target="_blank" rel="noopener noreferrer">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-6 w-6 shrink-0"
+                aria-label="View on gmgn.ai"
+              >
+                <ExternalLink className="h-3.5 w-3.5" />
+              </Button>
+            </a>
         </div>
       </CardContent>
        <CardFooter className="px-4 pb-4 text-xs pt-0 flex justify-between items-center text-muted-foreground">
