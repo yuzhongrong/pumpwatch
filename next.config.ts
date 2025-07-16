@@ -1,14 +1,6 @@
 import type {NextConfig} from 'next';
 
 const nextConfig: NextConfig = {
-  async rewrites() {
-    return [
-      {
-        source: '/api/proxy',
-        destination: 'https://studio--api-navigator-1owsj.us-central1.hosted.app/api/rsi',
-      },
-    ]
-  },
   typescript: {
     ignoreBuildErrors: true,
   },

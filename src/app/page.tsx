@@ -7,6 +7,7 @@ import { Sidebar, SidebarContent, SidebarHeader, SidebarInset, SidebarMenu, Side
 import { Button } from '@/components/ui/button';
 import { Flame, Sparkles, Rocket, Star, Users, RefreshCw } from 'lucide-react';
 import { useState, useEffect, useCallback } from 'react';
+import { useToast } from '@/hooks/use-toast';
 
 type MenuKey = 'hot' | 'new' | 'watchlist' | 'community';
 
@@ -70,12 +71,15 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [countdown, setCountdown] = useState(REFRESH_INTERVAL);
+  const { toast } = useToast();
 
   const fetchData = useCallback(async () => {
     setIsRefreshing(true);
-    setLoading(true);
+    if (allTokens.length === 0) {
+      setLoading(true);
+    }
     try {
-      const response = await fetch('/api/proxy');
+      const response = await fetch('/api/tokens');
       if (!response.ok) {
         throw new Error('Network response was not ok');
       }
@@ -87,13 +91,18 @@ export default function Home() {
       setAllTokens(transformedData);
     } catch (error) {
       console.error("Failed to fetch tokens:", error);
+      toast({
+        title: "错误",
+        description: "无法获取代币数据，请稍后再试。",
+        variant: "destructive",
+      });
       setAllTokens([]);
     } finally {
       setLoading(false);
       setIsRefreshing(false);
       setCountdown(REFRESH_INTERVAL);
     }
-  }, []);
+  }, [allTokens.length, toast]);
 
   useEffect(() => {
     fetchData();
