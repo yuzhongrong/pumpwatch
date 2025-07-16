@@ -16,6 +16,9 @@ const formatNumber = (num: number) => {
 };
 
 const formatPrice = (price: number): string => {
+  if (isNaN(price)) {
+    return '$...';
+  }
   if (price > 0 && price < 0.000001) {
     return `$${price.toExponential(2)}`;
   }
@@ -52,7 +55,7 @@ const getTradingSuggestion = (rsi5m: number | null, rsi1h: number | null) => {
 type Suggestion = ReturnType<typeof getTradingSuggestion>;
 
 export function TokenCard({ token }: { token: TokenData }) {
-  const isPositive = token.priceChange ? token.priceChange.h24 >= 0 : true;
+  const isPositive = token.priceChange && typeof token.priceChange.h24 === 'number' ? token.priceChange.h24 >= 0 : true;
   const chartColor = isPositive ? 'hsl(var(--primary))' : 'hsl(var(--destructive))';
   const [isCopied, setIsCopied] = useState(false);
   const [suggestion, setSuggestion] = useState<Suggestion | null>(null);
@@ -133,7 +136,7 @@ export function TokenCard({ token }: { token: TokenData }) {
             <p className="text-2xl font-semibold font-mono">{formatPrice(latestPrice)}</p>
             <div className={`flex items-center gap-1 text-sm font-semibold ${isPositive ? 'text-primary' : 'text-destructive'}`}>
                 {isPositive ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
-                <span>{token.priceChange ? `${token.priceChange.h24.toFixed(1)}%` : '...'}</span>
+                <span>{token.priceChange && typeof token.priceChange.h24 === 'number' ? `${token.priceChange.h24.toFixed(1)}%` : '...'}</span>
             </div>
         </div>
         <div className="mt-2 flex items-center gap-1 text-xs text-muted-foreground">
