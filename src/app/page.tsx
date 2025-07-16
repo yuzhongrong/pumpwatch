@@ -54,6 +54,7 @@ function PageContent({ title, tokens }: { title: string; tokens: TokenData[] }) 
 
 export default function Home() {
   const [activeMenu, setActiveMenu] = useState<MenuKey>('hot');
+  const [allTokens, setAllTokens] = useState<TokenData[]>([]);
   const [tokens, setTokens] = useState<TokenData[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -66,28 +67,29 @@ export default function Home() {
           throw new Error('Network response was not ok');
         }
         const data: TokenData[] = await response.json();
-        
-        // Simple filtering for different menus for demonstration
-        if (activeMenu === 'hot') {
-          setTokens(data);
-        } else if (activeMenu === 'new') {
-           setTokens(data.slice(0, 2));
-        } else if (activeMenu === 'watchlist') {
-           setTokens(data.slice(2, 4));
-        } else {
-          setTokens([]);
-        }
-
+        setAllTokens(data);
       } catch (error) {
         console.error("Failed to fetch tokens:", error);
-        setTokens([]);
+        setAllTokens([]);
       } finally {
         setLoading(false);
       }
     }
 
     fetchData();
-  }, [activeMenu]);
+  }, []);
+
+  useEffect(() => {
+    if (activeMenu === 'hot') {
+      setTokens(allTokens);
+    } else if (activeMenu === 'new') {
+       setTokens(allTokens.slice(0, 2));
+    } else if (activeMenu === 'watchlist') {
+       setTokens(allTokens.slice(2, 4));
+    } else {
+      setTokens([]);
+    }
+  }, [activeMenu, allTokens]);
 
   const { title } = menuConfig[activeMenu];
 
