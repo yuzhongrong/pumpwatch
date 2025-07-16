@@ -5,11 +5,12 @@ import { TokenCard } from '@/components/token-card';
 import { TokenData } from '@/lib/data';
 import { Sidebar, SidebarContent, SidebarHeader, SidebarInset, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarRail } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
-import { Flame, Sparkles, Rocket, Star, Users, RefreshCw } from 'lucide-react';
-import { useState, useEffect, useCallback } from 'react';
+import { Flame, Sparkles, Rocket, Star, Users, RefreshCw, ShoppingCart, ShieldCheck, Eye } from 'lucide-react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useToast } from '@/hooks/use-toast';
 
 type MenuKey = 'hot' | 'new' | 'watchlist' | 'community';
+type SuggestionType = '买入' | '保守买入' | '观望';
 
 const REFRESH_INTERVAL = 60; // 60 seconds
 
@@ -36,7 +37,30 @@ const menuConfig: Record<MenuKey, { title: string; icon: React.ElementType, labe
   }
 };
 
-function PageContent({ title, tokens, onRefresh, isRefreshing, countdown }: { title: string; tokens: TokenData[], onRefresh: () => void, isRefreshing: boolean, countdown: number }) {
+const getTradingSuggestionText = (token: TokenData): SuggestionType => {
+    const rsi5m = token['rsi-5m'];
+    const rsi1h = token['rsi-1h'];
+    if (rsi5m !== null && rsi1h !== null) {
+        if (rsi5m < 30 && rsi1h < 30) {
+          return '买入';
+        }
+        if (rsi5m < 30 && rsi1h > 30) {
+          return '保守买入';
+        }
+    }
+    return '观望';
+};
+
+const suggestionConfig: Record<SuggestionType, { title: string; icon: React.ElementType }> = {
+    '买入': { title: '买入', icon: ShoppingCart },
+    '保守买入': { title: '保守买入', icon: ShieldCheck },
+    '观望': { title: '观望', icon: Eye }
+};
+
+
+function PageContent({ title, tokens, onRefresh, isRefreshing, countdown, groupedTokens }: { title: string; tokens: TokenData[], onRefresh: () => void, isRefreshing: boolean, countdown: number, groupedTokens: Record<SuggestionType, TokenData[]> }) {
+  const hasHotTokens = Object.values(groupedTokens).some(group => group.length > 0);
+  
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
@@ -48,12 +72,34 @@ function PageContent({ title, tokens, onRefresh, isRefreshing, countdown }: { ti
           </Button>
         )}
       </div>
-      {tokens && tokens.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {tokens.map((token) => (
-            <TokenCard key={token.id} token={token} />
-          ))}
-        </div>
+      {title === '热门监控' ? (
+        hasHotTokens ? (
+           <div className="space-y-8">
+            {(Object.keys(suggestionConfig) as SuggestionType[]).map((groupName) => {
+              const groupTokens = groupedTokens[groupName];
+              if (groupTokens.length === 0) return null;
+              const Icon = suggestionConfig[groupName].icon;
+              return (
+                <div key={groupName}>
+                  <div className="flex items-center gap-2 mb-4">
+                     <Icon className="h-6 w-6 text-muted-foreground" />
+                     <h3 className="text-xl font-semibold text-foreground">{suggestionConfig[groupName].title} ({groupTokens.length})</h3>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    {groupTokens.map((token) => (
+                      <TokenCard key={token.id} token={token} />
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="flex flex-col items-center justify-center h-64 text-center bg-card rounded-lg border border-dashed">
+            <p className="text-lg font-semibold text-foreground">列表为空</p>
+            <p className="text-muted-foreground mt-2">这里还没有任何代币。</p>
+          </div>
+        )
       ) : (
          <div className="flex flex-col items-center justify-center h-64 text-center bg-card rounded-lg border border-dashed">
             <p className="text-lg font-semibold text-foreground">列表为空</p>
@@ -125,6 +171,22 @@ export default function Home() {
     return () => clearInterval(timer);
   }, [activeMenu, fetchData, isRefreshing]);
 
+  const groupedTokens = useMemo(() => {
+    const groups: Record<SuggestionType, TokenData[]> = {
+        '买入': [],
+        '保守买入': [],
+        '观望': [],
+    };
+    if (activeMenu === 'hot') {
+        allTokens.forEach(token => {
+            const suggestion = getTradingSuggestionText(token);
+            groups[suggestion].push(token);
+        });
+    }
+    return groups;
+  }, [activeMenu, allTokens]);
+
+
   useEffect(() => {
     if (activeMenu === 'hot') {
       setTokens(allTokens);
@@ -178,7 +240,7 @@ export default function Home() {
       <SidebarInset>
         <main className="flex-1 p-6 lg:p-8">
           <Header />
-          {isLoading ? <p>Loading...</p> : <PageContent title={title} tokens={tokens} onRefresh={fetchData} isRefreshing={isRefreshing} countdown={countdown} />}
+          {isLoading ? <p>Loading...</p> : <PageContent title={title} tokens={tokens} onRefresh={fetchData} isRefreshing={isRefreshing} countdown={countdown} groupedTokens={groupedTokens} />}
         </main>
       </SidebarInset>
     </div>
