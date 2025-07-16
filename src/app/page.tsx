@@ -72,10 +72,8 @@ export default function Home() {
   const [countdown, setCountdown] = useState(REFRESH_INTERVAL);
 
   const fetchData = useCallback(async () => {
-    if (isRefreshing) return;
-    
-    setLoading(true);
     setIsRefreshing(true);
+    setLoading(true);
     try {
       const response = await fetch('/api/proxy');
       if (!response.ok) {
@@ -95,7 +93,7 @@ export default function Home() {
       setIsRefreshing(false);
       setCountdown(REFRESH_INTERVAL);
     }
-  }, [isRefreshing]);
+  }, []);
 
   useEffect(() => {
     fetchData();
@@ -103,8 +101,9 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    if (activeMenu === 'hot') {
-      const timer = setInterval(() => {
+    let timer: NodeJS.Timeout;
+    if (activeMenu === 'hot' && !isRefreshing) {
+      timer = setInterval(() => {
         setCountdown((prevCountdown) => {
           if (prevCountdown <= 1) {
             fetchData();
@@ -113,9 +112,9 @@ export default function Home() {
           return prevCountdown - 1;
         });
       }, 1000);
-      return () => clearInterval(timer);
     }
-  }, [activeMenu, fetchData]);
+    return () => clearInterval(timer);
+  }, [activeMenu, fetchData, isRefreshing]);
 
   useEffect(() => {
     if (activeMenu === 'hot') {
