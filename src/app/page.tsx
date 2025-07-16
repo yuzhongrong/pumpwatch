@@ -4,10 +4,13 @@ import { Header } from '@/components/header';
 import { TokenCard } from '@/components/token-card';
 import { TokenData } from '@/lib/data';
 import { Sidebar, SidebarContent, SidebarHeader, SidebarInset, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarRail } from '@/components/ui/sidebar';
-import { Flame, Sparkles, Rocket, Star, Users } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { Button } from '@/components/ui/button';
+import { Flame, Sparkles, Rocket, Star, Users, RefreshCw } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
 
 type MenuKey = 'hot' | 'new' | 'watchlist' | 'community';
+
+const REFRESH_INTERVAL = 60; // 60 seconds
 
 const menuConfig: Record<MenuKey, { title: string; icon: React.ElementType, label: string }> = {
   hot: {
@@ -32,10 +35,18 @@ const menuConfig: Record<MenuKey, { title: string; icon: React.ElementType, labe
   }
 };
 
-function PageContent({ title, tokens }: { title: string; tokens: TokenData[] }) {
+function PageContent({ title, tokens, onRefresh, isRefreshing, countdown }: { title: string; tokens: TokenData[], onRefresh: () => void, isRefreshing: boolean, countdown: number }) {
   return (
     <div>
-      <h2 className="text-3xl font-bold tracking-tight text-foreground mb-6">{title}</h2>
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-3xl font-bold tracking-tight text-foreground">{title}</h2>
+        {title === '热门监控' && (
+           <Button onClick={onRefresh} disabled={isRefreshing} variant="outline" size="sm">
+            <RefreshCw className={`h-4 w-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
+            {isRefreshing ? '正在刷新...' : `刷新 (${countdown}s)`}
+          </Button>
+        )}
+      </div>
       {tokens && tokens.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {tokens.map((token) => (
@@ -57,31 +68,54 @@ export default function Home() {
   const [allTokens, setAllTokens] = useState<TokenData[]>([]);
   const [tokens, setTokens] = useState<TokenData[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [countdown, setCountdown] = useState(REFRESH_INTERVAL);
+
+  const fetchData = useCallback(async () => {
+    if (isRefreshing) return;
+    
+    setLoading(true);
+    setIsRefreshing(true);
+    try {
+      const response = await fetch('/api/proxy');
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      const data = await response.json();
+      const transformedData = data.map((token: any) => ({
+        ...token,
+        id: token._id, 
+      }));
+      setAllTokens(transformedData);
+    } catch (error) {
+      console.error("Failed to fetch tokens:", error);
+      setAllTokens([]);
+    } finally {
+      setLoading(false);
+      setIsRefreshing(false);
+      setCountdown(REFRESH_INTERVAL);
+    }
+  }, [isRefreshing]);
 
   useEffect(() => {
-    async function fetchData() {
-      setLoading(true);
-      try {
-        const response = await fetch('/api/proxy');
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        const data = await response.json();
-        const transformedData = data.map((token: any) => ({
-          ...token,
-          id: token._id, 
-        }));
-        setAllTokens(transformedData);
-      } catch (error) {
-        console.error("Failed to fetch tokens:", error);
-        setAllTokens([]);
-      } finally {
-        setLoading(false);
-      }
-    }
-
     fetchData();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    if (activeMenu === 'hot') {
+      const timer = setInterval(() => {
+        setCountdown((prevCountdown) => {
+          if (prevCountdown <= 1) {
+            fetchData();
+            return REFRESH_INTERVAL;
+          }
+          return prevCountdown - 1;
+        });
+      }, 1000);
+      return () => clearInterval(timer);
+    }
+  }, [activeMenu, fetchData]);
 
   useEffect(() => {
     if (activeMenu === 'hot') {
@@ -96,6 +130,7 @@ export default function Home() {
   }, [activeMenu, allTokens]);
 
   const { title } = menuConfig[activeMenu];
+  const isLoading = loading && !isRefreshing;
 
   return (
     <div className="flex">
@@ -139,7 +174,7 @@ export default function Home() {
       <SidebarInset>
         <main className="flex-1 p-6 lg:p-8">
           <Header />
-          {loading ? <p>Loading...</p> : <PageContent title={title} tokens={tokens} />}
+          {isLoading ? <p>Loading...</p> : <PageContent title={title} tokens={tokens} onRefresh={fetchData} isRefreshing={isRefreshing} countdown={countdown} />}
         </main>
       </SidebarInset>
     </div>
