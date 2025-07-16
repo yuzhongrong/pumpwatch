@@ -119,10 +119,6 @@ export default function Home() {
   useEffect(() => {
     if (activeMenu === 'hot') {
       setTokens(allTokens);
-    } else if (activeMenu === 'new') {
-       setTokens(allTokens.slice(0, 2));
-    } else if (activeMenu === 'watchlist') {
-       setTokens(allTokens.slice(2, 4));
     } else {
       setTokens([]);
     }
