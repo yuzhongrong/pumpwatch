@@ -37,12 +37,14 @@ const CustomTooltip = ({ active, payload, label }: any) => {
   return null;
 };
 
-const getTradingSuggestion = (rsi5m: number, rsi1h: number) => {
-    if (rsi5m < 30 && rsi1h < 30) {
-      return { text: '买入', variant: 'success' as const, icon: ShoppingCart };
-    }
-    if (rsi5m < 30 && rsi1h > 30) {
-      return { text: '保守买入', variant: 'warning' as const, icon: ShieldCheck };
+const getTradingSuggestion = (rsi5m: number | null, rsi1h: number | null) => {
+    if (rsi5m !== null && rsi1h !== null) {
+        if (rsi5m < 30 && rsi1h < 30) {
+          return { text: '买入', variant: 'success' as const, icon: ShoppingCart };
+        }
+        if (rsi5m < 30 && rsi1h > 30) {
+          return { text: '保守买入', variant: 'warning' as const, icon: ShieldCheck };
+        }
     }
     return { text: '观望', variant: 'outline' as const, icon: Eye };
 };
@@ -159,11 +161,11 @@ export function TokenCard({ token }: { token: TokenData }) {
         <div className="flex items-center gap-2">
             <div className="flex items-center gap-1">
                 <span className="text-muted-foreground/80">5m:</span>
-                <span className="font-mono font-medium text-foreground/80">{isMounted ? token['rsi-5m'].toFixed(0) : '...'}</span>
+                <span className="font-mono font-medium text-foreground/80">{isMounted && token['rsi-5m'] !== null ? token['rsi-5m'].toFixed(0) : '...'}</span>
             </div>
              <div className="flex items-center gap-1">
                 <span className="text-muted-foreground/80">1h:</span>
-                <span className="font-mono font-medium text-foreground/80">{isMounted ? token['rsi-1h'].toFixed(0) : '...'}</span>
+                <span className="font-mono font-medium text-foreground/80">{isMounted && token['rsi-1h'] !== null ? token['rsi-1h'].toFixed(0) : '...'}</span>
             </div>
         </div>
       </CardFooter>
