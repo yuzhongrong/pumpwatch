@@ -78,6 +78,8 @@ export function TokenCard({ token }: { token: TokenData }) {
     .map(d => ({ time: parseInt(d[0]), value: parseFloat(d[4]) }))
     .sort((a, b) => a.time - b.time);
 
+  const latestPrice = chartData.length > 0 ? chartData[chartData.length - 1].value : parseFloat(token.priceUsd);
+
   return (
     <Card className="flex flex-col transition-all hover:shadow-lg hover:-translate-y-1 overflow-hidden bg-card border-border/60 hover:border-primary/50">
        <div className="h-24 w-full relative">
@@ -128,7 +130,7 @@ export function TokenCard({ token }: { token: TokenData }) {
       </CardHeader>
       <CardContent className="flex-grow p-4 pt-2">
         <div className="flex justify-between items-baseline">
-            <p className="text-2xl font-semibold font-mono">{formatPrice(parseFloat(token.priceUsd))}</p>
+            <p className="text-2xl font-semibold font-mono">{formatPrice(latestPrice)}</p>
             <div className={`flex items-center gap-1 text-sm font-semibold ${isPositive ? 'text-primary' : 'text-destructive'}`}>
                 {isPositive ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
                 <span>{token.priceChange.h24.toFixed(1)}%</span>
