@@ -66,8 +66,13 @@ export default function Home() {
         if (!response.ok) {
           throw new Error('Network response was not ok');
         }
-        const data: TokenData[] = await response.json();
-        setAllTokens(data);
+        const data = await response.json();
+        // The API returns '_id', but our component expects 'id'. We map the data to fix this.
+        const transformedData = data.map((token: any) => ({
+          ...token,
+          id: token._id, 
+        }));
+        setAllTokens(transformedData);
       } catch (error) {
         console.error("Failed to fetch tokens:", error);
         setAllTokens([]);
