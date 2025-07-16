@@ -52,7 +52,7 @@ const getTradingSuggestion = (rsi5m: number | null, rsi1h: number | null) => {
 type Suggestion = ReturnType<typeof getTradingSuggestion>;
 
 export function TokenCard({ token }: { token: TokenData }) {
-  const isPositive = token.priceChange.h24 >= 0;
+  const isPositive = token.priceChange ? token.priceChange.h24 >= 0 : true;
   const chartColor = isPositive ? 'hsl(var(--primary))' : 'hsl(var(--destructive))';
   const [isCopied, setIsCopied] = useState(false);
   const [suggestion, setSuggestion] = useState<Suggestion | null>(null);
@@ -133,7 +133,7 @@ export function TokenCard({ token }: { token: TokenData }) {
             <p className="text-2xl font-semibold font-mono">{formatPrice(latestPrice)}</p>
             <div className={`flex items-center gap-1 text-sm font-semibold ${isPositive ? 'text-primary' : 'text-destructive'}`}>
                 {isPositive ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
-                <span>{token.priceChange.h24.toFixed(1)}%</span>
+                <span>{token.priceChange ? `${token.priceChange.h24.toFixed(1)}%` : '...'}</span>
             </div>
         </div>
         <div className="mt-2 flex items-center gap-2 text-xs text-muted-foreground">
