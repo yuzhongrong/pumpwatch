@@ -62,12 +62,11 @@ export default function Home() {
     async function fetchData() {
       setLoading(true);
       try {
-        const response = await fetch('https://studio--api-navigator-1owsj.us-central1.hosted.app/api/rsi');
+        const response = await fetch('/api/proxy');
         if (!response.ok) {
           throw new Error('Network response was not ok');
         }
         const data = await response.json();
-        // The API returns '_id', but our component expects 'id'. We map the data to fix this.
         const transformedData = data.map((token: any) => ({
           ...token,
           id: token._id, 

@@ -1,7 +1,14 @@
 import type {NextConfig} from 'next';
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  async rewrites() {
+    return [
+      {
+        source: '/api/proxy',
+        destination: 'https://studio--api-navigator-1owsj.us-central1.hosted.app/api/rsi',
+      },
+    ]
+  },
   typescript: {
     ignoreBuildErrors: true,
   },
@@ -16,6 +23,10 @@ const nextConfig: NextConfig = {
         port: '',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'dd.dexscreener.com',
+      }
     ],
   },
 };
