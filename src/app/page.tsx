@@ -1,7 +1,8 @@
+
 'use client';
 
 import { Header } from '@/components/header';
-import { TokenCard } from '@/components/token-card';
+import { TokenCard, TokenCardSkeleton } from '@/components/token-card';
 import { TokenData } from '@/lib/data';
 import { Sidebar, SidebarContent, SidebarHeader, SidebarInset, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarRail } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
@@ -9,6 +10,7 @@ import { Flame, Sparkles, Bell, Star, Users, RefreshCw, ShoppingCart, ShieldChec
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { NotificationSettings } from '@/components/notification-settings';
+import { Skeleton } from '@/components/ui/skeleton';
 
 type MenuKey = 'hot' | 'notifications' | 'watchlist' | 'community';
 type SuggestionType = '买入' | '保守买入' | '观望';
@@ -59,7 +61,7 @@ const suggestionConfig: Record<SuggestionType, { title: string; icon: React.Elem
 };
 
 
-function PageContent({ title, tokens, onRefresh, isRefreshing, countdown, groupedTokens, activeMenu }: { title: string; tokens: TokenData[], onRefresh: () => void, isRefreshing: boolean, countdown: number, groupedTokens: Record<SuggestionType, TokenData[]>, activeMenu: MenuKey }) {
+function PageContent({ title, onRefresh, isRefreshing, countdown, groupedTokens, activeMenu }: { title: string; onRefresh: () => void, isRefreshing: boolean, countdown: number, groupedTokens: Record<SuggestionType, TokenData[]>, activeMenu: MenuKey }) {
   const hasHotTokens = Object.values(groupedTokens).some(group => group.length > 0);
   
   if (activeMenu === 'notifications') {
@@ -115,10 +117,32 @@ function PageContent({ title, tokens, onRefresh, isRefreshing, countdown, groupe
   );
 }
 
+function LoadingSkeleton() {
+  return (
+    <div className="space-y-8">
+      <div>
+        <Skeleton className="h-8 w-48 mb-4" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <TokenCardSkeleton />
+          <TokenCardSkeleton />
+          <TokenCardSkeleton />
+          <TokenCardSkeleton />
+        </div>
+      </div>
+      <div>
+        <Skeleton className="h-8 w-48 mb-4" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <TokenCardSkeleton />
+          <TokenCardSkeleton />
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default function Home() {
   const [activeMenu, setActiveMenu] = useState<MenuKey>('hot');
   const [allTokens, setAllTokens] = useState<TokenData[]>([]);
-  const [tokens, setTokens] = useState<TokenData[]>([]);
   const [loading, setLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [countdown, setCountdown] = useState(REFRESH_INTERVAL);
@@ -191,15 +215,6 @@ export default function Home() {
     return groups;
   }, [activeMenu, allTokens]);
 
-
-  useEffect(() => {
-    if (activeMenu === 'hot') {
-      setTokens(allTokens);
-    } else {
-      setTokens([]);
-    }
-  }, [activeMenu, allTokens]);
-
   const { title } = menuConfig[activeMenu];
   const isLoading = loading && !isRefreshing;
 
@@ -243,9 +258,9 @@ export default function Home() {
         </SidebarContent>
       </Sidebar>
       <SidebarInset>
+         <Header />
         <main className="flex-1 p-6 lg:p-8">
-          <Header />
-          {isLoading ? <p>Loading...</p> : <PageContent title={title} tokens={tokens} onRefresh={fetchData} isRefreshing={isRefreshing} countdown={countdown} groupedTokens={groupedTokens} activeMenu={activeMenu}/>}
+          {isLoading ? <LoadingSkeleton /> : <PageContent title={title} onRefresh={fetchData} isRefreshing={isRefreshing} countdown={countdown} groupedTokens={groupedTokens} activeMenu={activeMenu}/>}
         </main>
       </SidebarInset>
     </div>

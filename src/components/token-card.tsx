@@ -8,6 +8,7 @@ import type { TokenData } from '@/lib/data';
 import { TrendingUp, TrendingDown, Copy, Check, Eye, ShoppingCart, ShieldCheck, ExternalLink } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { Button } from './ui/button';
+import { Skeleton } from './ui/skeleton';
 
 const formatNumber = (num: number) => {
   if (num >= 1_000_000) return `${(num / 1_000_000).toFixed(2)}M`;
@@ -53,6 +54,36 @@ const getTradingSuggestion = (rsi5m: number | null, rsi1h: number | null) => {
 };
 
 type Suggestion = ReturnType<typeof getTradingSuggestion>;
+
+export function TokenCardSkeleton() {
+  return (
+    <Card className="flex flex-col">
+       <Skeleton className="h-24 w-full" />
+      <CardHeader className="pt-4 px-4 pb-2">
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex items-center gap-3">
+             <Skeleton className="h-10 w-10 rounded-full" />
+            <div>
+              <Skeleton className="h-5 w-20" />
+              <Skeleton className="h-4 w-12 mt-1" />
+            </div>
+          </div>
+            <Skeleton className="h-6 w-20 rounded-full" />
+        </div>
+      </CardHeader>
+      <CardContent className="flex-grow p-4 pt-2">
+        <Skeleton className="h-7 w-24" />
+        <div className="mt-2 flex items-center gap-1 text-xs text-muted-foreground">
+          <Skeleton className="h-5 w-full" />
+        </div>
+      </CardContent>
+       <CardFooter className="px-4 pb-4 text-xs pt-0 flex justify-between items-center text-muted-foreground">
+         <Skeleton className="h-5 w-20" />
+         <Skeleton className="h-5 w-24" />
+      </CardFooter>
+    </Card>
+  )
+}
 
 export function TokenCard({ token }: { token: TokenData }) {
   const isPositive = token.priceChange && typeof token.priceChange.h24 === 'number' ? token.priceChange.h24 >= 0 : true;
