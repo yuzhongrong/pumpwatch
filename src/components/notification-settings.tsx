@@ -125,7 +125,7 @@ export function NotificationSettings() {
   
   if (!connected) {
     return (
-      <Card>
+      <Card className="w-full">
         <CardHeader>
           <CardTitle>通知设置</CardTitle>
           <CardDescription>连接您的钱包以管理邮件通知。</CardDescription>
@@ -143,7 +143,7 @@ export function NotificationSettings() {
 
   if (isLoading) {
     return (
-        <Card>
+        <Card className="w-full">
             <CardHeader>
                 <CardTitle>通知设置</CardTitle>
                 <CardDescription>正在加载您的订阅信息...</CardDescription>
@@ -157,7 +157,7 @@ export function NotificationSettings() {
 
   if (registeredEmail) {
     return (
-      <Card>
+      <Card className="w-full">
         <CardHeader>
           <CardTitle>通知设置</CardTitle>
           <CardDescription>您已使用当前钱包订阅新代币通知。您的邮箱地址如下：</CardDescription>
@@ -177,7 +177,7 @@ export function NotificationSettings() {
   }
 
   return (
-    <Card>
+    <Card className="w-full">
       <CardHeader>
         <CardTitle>订阅通知</CardTitle>
         <CardDescription>注册您的邮箱地址以接收热门新代币的实时提醒。</CardDescription>

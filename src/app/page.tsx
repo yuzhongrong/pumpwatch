@@ -177,14 +177,13 @@ export default function Home() {
       setAllTokens(transformedData);
     } catch (error) {
       console.error("Failed to fetch tokens:", error);
-      if (allTokens.length === 0) { // Only show toast if there's no data to show
+      if (allTokens.length === 0) { 
         toast({
           title: "错误",
           description: "无法获取代币数据，请稍后再试。",
           variant: "destructive",
         });
       }
-      // Do not clear tokens on error during refresh
     } finally {
       if (isInitialLoad) {
         setLoading(false);
@@ -233,7 +232,7 @@ export default function Home() {
   const isLoading = loading && activeMenu === 'hot';
 
   return (
-    <div className="grid grid-cols-[auto_1fr]">
+    <div className="grid grid-cols-[auto_1fr] w-full">
       <Sidebar collapsible="icon">
         <SidebarRail />
         <SidebarHeader>
@@ -271,7 +270,7 @@ export default function Home() {
           </div>
         </SidebarContent>
       </Sidebar>
-      <div className="flex flex-col">
+      <div className="flex flex-col w-full">
         <Header />
         <main className="flex-1 p-6 lg:p-8">
           {isLoading ? <LoadingSkeleton /> : <PageContent onRefresh={fetchData} isRefreshing={isRefreshing} countdown={countdown} groupedTokens={groupedTokens} activeMenu={activeMenu}/>}
