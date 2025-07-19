@@ -4,7 +4,7 @@
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
-import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
+import { WalletButton } from './wallet-button';
 
 
 export function Header() {
@@ -17,7 +17,7 @@ export function Header() {
           <Input placeholder="Search tokens..." className="pl-9 w-full" />
         </div>
         <div className="flex-1" />
-        <WalletMultiButton />
+        <WalletButton />
       </div>
     </header>
   );

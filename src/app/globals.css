@@ -104,15 +104,3 @@
     @apply bg-background text-foreground;
   }
 }
-
-@layer components {
-  /* Force override the Solana wallet button styles */
-  .wallet-adapter-button-trigger, button.wallet-adapter-button {
-    background-color: hsl(var(--primary)) !important;
-    color: hsl(var(--primary-foreground)) !important;
-  }
-
-  .wallet-adapter-button-trigger:hover, button.wallet-adapter-button:hover {
-    background-color: hsl(var(--primary) / 0.9) !important;
-  }
-}
