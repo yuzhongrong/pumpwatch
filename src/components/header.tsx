@@ -87,7 +87,7 @@ function CustomWalletButton() {
   }
 
   return (
-    <Button onClick={handleConnect} >
+    <Button onClick={handleConnect}>
       连接钱包
     </Button>
   );
