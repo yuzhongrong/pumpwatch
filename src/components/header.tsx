@@ -11,13 +11,7 @@ export function Header() {
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input placeholder="Search tokens..." className="pl-9 w-full max-w-md" />
       </div>
-      <WalletMultiButton 
-        style={{
-          '--wma-background': 'hsl(var(--primary))',
-          '--wma-text': 'hsl(var(--primary-foreground))',
-          '--wma-border-radius': '0.375rem',
-        } as React.CSSProperties}
-      />
+      <WalletMultiButton className="!bg-primary !text-primary-foreground hover:!bg-primary/90" />
     </header>
   );
 }
