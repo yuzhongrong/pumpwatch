@@ -109,4 +109,7 @@
   .wallet-adapter-button {
     @apply bg-primary text-primary-foreground h-10 px-4 py-2 rounded-md text-sm font-medium hover:bg-primary/90;
   }
+  .wallet-adapter-button-trigger {
+    @apply bg-primary text-primary-foreground h-10 px-4 py-2 rounded-md text-sm font-medium hover:bg-primary/90;
+  }
 }
