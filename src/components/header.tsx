@@ -12,7 +12,9 @@ export function Header() {
         <Input placeholder="Search tokens..." className="pl-9" />
       </div>
       <div className="ml-auto">
-        <WalletMultiButton />
+        <WalletMultiButton 
+          className="!bg-primary hover:!bg-primary/90 !text-primary-foreground !rounded-md"
+        />
       </div>
     </header>
   );
