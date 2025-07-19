@@ -19,17 +19,18 @@ import {
 } from '@/components/ui/dropdown-menu';
 
 function CustomWalletButton() {
-  const { wallet, connect, connected, disconnect, publicKey } = useWallet();
+  const { connect, connected, disconnect, publicKey, select, wallet } = useWallet();
   const { setVisible } = useWalletModal();
   const [isCopied, setIsCopied] = useState(false);
 
-  const handleConnect = useCallback(() => {
-    if (wallet) {
-      connect().catch(() => {});
-    } else {
-      setVisible(true);
+  const handleConnect = useCallback(async () => {
+    if (connected) return;
+    try {
+        await connect();
+    } catch (error) {
+        console.error('Failed to connect wallet:', error);
     }
-  }, [wallet, connect, setVisible]);
+  }, [connect, connected]);
 
   const handleDisconnect = useCallback(() => {
     disconnect().catch(() => {});
