@@ -272,10 +272,12 @@ export default function Home() {
         </SidebarContent>
       </Sidebar>
       <SidebarInset>
-         <Header />
-        <main className="flex-1 p-6 lg:p-8">
-          {isLoading ? <LoadingSkeleton /> : <PageContent title={title} onRefresh={fetchData} isRefreshing={isRefreshing} countdown={countdown} groupedTokens={groupedTokens} activeMenu={activeMenu}/>}
-        </main>
+        <div className="flex flex-col min-h-screen">
+          <Header />
+          <main className="flex-1 p-6 lg:p-8">
+            {isLoading ? <LoadingSkeleton /> : <PageContent title={title} onRefresh={fetchData} isRefreshing={isRefreshing} countdown={countdown} groupedTokens={groupedTokens} activeMenu={activeMenu}/>}
+          </main>
+        </div>
       </SidebarInset>
     </div>
   );
