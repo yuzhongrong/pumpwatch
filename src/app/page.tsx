@@ -233,7 +233,7 @@ export default function Home() {
   const isLoading = loading && activeMenu === 'hot';
 
   return (
-    <div className="flex">
+    <div className="grid grid-cols-[auto_1fr]">
       <Sidebar collapsible="icon">
         <SidebarRail />
         <SidebarHeader>
@@ -271,14 +271,12 @@ export default function Home() {
           </div>
         </SidebarContent>
       </Sidebar>
-      <SidebarInset>
-        <div className="flex flex-col min-h-screen">
-          <Header />
-          <main className="flex-1 p-6 lg:p-8">
-            {isLoading ? <LoadingSkeleton /> : <PageContent title={title} onRefresh={fetchData} isRefreshing={isRefreshing} countdown={countdown} groupedTokens={groupedTokens} activeMenu={activeMenu}/>}
-          </main>
-        </div>
-      </SidebarInset>
+      <div className="flex flex-col">
+        <Header />
+        <main className="flex-1 p-6 lg:p-8">
+          {isLoading ? <LoadingSkeleton /> : <PageContent title={title} onRefresh={fetchData} isRefreshing={isRefreshing} countdown={countdown} groupedTokens={groupedTokens} activeMenu={activeMenu}/>}
+        </main>
+      </div>
     </div>
   );
 }
