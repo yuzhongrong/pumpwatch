@@ -58,11 +58,11 @@ function CustomWalletButton() {
             {shortAddress}
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-64">
+        <DropdownMenuContent align="end" className="w-56">
            <DropdownMenuLabel className="font-normal">
               <div className="flex flex-col space-y-1">
                 <p className="text-sm font-medium leading-none">已连接钱包</p>
-                <p className="text-xs leading-none text-muted-foreground truncate">{address}</p>
+                <p className="text-xs leading-none text-muted-foreground truncate">{shortAddress}</p>
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
