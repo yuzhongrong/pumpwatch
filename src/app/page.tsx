@@ -63,24 +63,11 @@ const suggestionConfig: Record<SuggestionType, { title: string; icon: React.Elem
 
 function PageContent({ title, onRefresh, isRefreshing, countdown, groupedTokens, activeMenu }: { title: string; onRefresh: () => void, isRefreshing: boolean, countdown: number, groupedTokens: Record<SuggestionType, TokenData[]>, activeMenu: MenuKey }) {
   const hasHotTokens = Object.values(groupedTokens).some(group => group.length > 0);
-  
-  if (activeMenu === 'notifications') {
-    return <NotificationSettings />;
-  }
 
-  return (
-    <div>
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-3xl font-bold tracking-tight text-foreground">{title}</h2>
-        {activeMenu === 'hot' && (
-           <Button onClick={onRefresh} disabled={isRefreshing} variant="outline" size="sm">
-            <RefreshCw className={`h-4 w-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
-            {isRefreshing ? '正在刷新...' : `刷新 (${countdown}s)`}
-          </Button>
-        )}
-      </div>
-      {activeMenu === 'hot' ? (
-        hasHotTokens ? (
+  const renderContent = () => {
+    switch(activeMenu) {
+      case 'hot':
+        return hasHotTokens ? (
            <div className="space-y-8">
             {(Object.keys(suggestionConfig) as SuggestionType[]).map((groupName) => {
               const groupTokens = groupedTokens[groupName];
@@ -106,13 +93,34 @@ function PageContent({ title, onRefresh, isRefreshing, countdown, groupedTokens,
             <p className="text-lg font-semibold text-foreground">列表为空</p>
             <p className="text-muted-foreground mt-2">这里还没有任何代币。</p>
           </div>
-        )
-      ) : (
-         <div className="flex flex-col items-center justify-center h-64 text-center bg-card rounded-lg border border-dashed">
+        );
+      case 'notifications':
+        return <NotificationSettings />;
+      case 'watchlist':
+      case 'community':
+         return (
+           <div className="flex flex-col items-center justify-center h-64 text-center bg-card rounded-lg border border-dashed">
             <p className="text-lg font-semibold text-foreground">列表为空</p>
             <p className="text-muted-foreground mt-2">这里还没有任何代币。</p>
           </div>
-      )}
+        );
+      default:
+        return null;
+    }
+  }
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-3xl font-bold tracking-tight text-foreground">{title}</h2>
+        {activeMenu === 'hot' && (
+           <Button onClick={onRefresh} disabled={isRefreshing} variant="outline" size="sm">
+            <RefreshCw className={`h-4 w-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
+            {isRefreshing ? '正在刷新...' : `刷新 (${countdown}s)`}
+          </Button>
+        )}
+      </div>
+      {renderContent()}
     </div>
   );
 }
@@ -222,7 +230,7 @@ export default function Home() {
   }, [activeMenu, allTokens]);
 
   const { title } = menuConfig[activeMenu];
-  const isLoading = loading;
+  const isLoading = loading && activeMenu === 'hot';
 
   return (
     <div className="flex">
