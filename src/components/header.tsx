@@ -98,13 +98,14 @@ export function Header() {
   return (
     <header className="sticky top-0 z-10 flex h-16 shrink-0 items-center gap-4 border-b bg-background/80 px-6 backdrop-blur-sm">
       <SidebarTrigger className="md:hidden" />
-      <div className="flex-1">
-        <div className="relative">
+      <div className="flex flex-1 items-center gap-4">
+        <div className="relative w-full max-w-md">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input placeholder="Search tokens..." className="pl-9 w-full max-w-md" />
+          <Input placeholder="Search tokens..." className="pl-9 w-full" />
         </div>
+        <div className="flex-1" />
+        <CustomWalletButton />
       </div>
-      <CustomWalletButton />
     </header>
   );
 }
