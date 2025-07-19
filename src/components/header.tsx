@@ -11,7 +11,9 @@ import { useCallback, useState } from 'react';
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
+  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
@@ -56,15 +58,24 @@ function CustomWalletButton() {
             {shortAddress}
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-56">
-           <DropdownMenuItem onClick={handleCopyAddress}>
-            {isCopied ? <Check className="mr-2 h-4 w-4" /> : <Copy className="mr-2 h-4 w-4" />}
-            <span>{isCopied ? '已复制!' : '复制地址'}</span>
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={handleChangeWallet}>
-            <Wallet className="mr-2 h-4 w-4" />
-            <span>更换钱包</span>
-          </DropdownMenuItem>
+        <DropdownMenuContent align="end" className="w-64">
+           <DropdownMenuLabel className="font-normal">
+              <div className="flex flex-col space-y-1">
+                <p className="text-sm font-medium leading-none">已连接钱包</p>
+                <p className="text-xs leading-none text-muted-foreground truncate">{address}</p>
+              </div>
+            </DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuGroup>
+                <DropdownMenuItem onClick={handleCopyAddress}>
+                  {isCopied ? <Check className="mr-2 h-4 w-4" /> : <Copy className="mr-2 h-4 w-4" />}
+                  <span>{isCopied ? '已复制!' : '复制地址'}</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleChangeWallet}>
+                  <Wallet className="mr-2 h-4 w-4" />
+                  <span>更换钱包</span>
+                </DropdownMenuItem>
+            </DropdownMenuGroup>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={handleDisconnect} className="text-destructive focus:text-destructive">
             <LogOut className="mr-2 h-4 w-4" />
@@ -87,9 +98,11 @@ export function Header() {
   return (
     <header className="sticky top-0 z-10 flex h-16 shrink-0 items-center gap-4 border-b bg-background/80 px-6 backdrop-blur-sm">
       <SidebarTrigger className="md:hidden" />
-      <div className="relative flex-1">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-        <Input placeholder="Search tokens..." className="pl-9 w-full max-w-md" />
+      <div className="flex-1">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input placeholder="Search tokens..." className="pl-9 w-full max-w-md" />
+        </div>
       </div>
       <CustomWalletButton />
     </header>
