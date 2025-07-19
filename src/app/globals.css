@@ -4,7 +4,7 @@
 
 @layer base {
   :root {
-    --background: 0 0% 98%;
+    --background: 220 40% 98%;
     --foreground: 224 71% 4%;
 
     --card: 0 0% 100%;
@@ -102,5 +102,11 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+@layer components {
+  .wallet-adapter-button {
+    @apply bg-primary text-primary-foreground h-10 px-4 py-2 rounded-md text-sm font-medium hover:bg-primary/90;
   }
 }

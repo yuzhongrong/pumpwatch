@@ -11,7 +11,7 @@ export function Header() {
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input placeholder="Search tokens..." className="pl-9 w-full max-w-md" />
       </div>
-      <WalletMultiButton className="!bg-primary !text-primary-foreground hover:!bg-primary/90" />
+      <WalletMultiButton />
     </header>
   );
 }
