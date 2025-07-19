@@ -1,5 +1,5 @@
 
-"use client";
+'use client';
 
 import React, { useMemo } from 'react';
 import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react';
@@ -8,6 +8,11 @@ import { PhantomWalletAdapter } from '@solana/wallet-adapter-phantom';
 import { WalletModalProvider } from '@solana/wallet-adapter-react-ui';
 import { clusterApiUrl } from '@solana/web3.js';
 
+// Wallets should be defined outside the component render cycle
+const wallets = [
+    new PhantomWalletAdapter(),
+];
+
 export const WalletContextProvider = ({
     children,
 }: {
@@ -15,13 +20,6 @@ export const WalletContextProvider = ({
 }) => {
     const network = WalletAdapterNetwork.Mainnet;
     const endpoint = useMemo(() => clusterApiUrl(network), [network]);
-
-    const wallets = useMemo(
-        () => [
-            new PhantomWalletAdapter(),
-        ],
-        [network]
-    );
 
     return (
         <ConnectionProvider endpoint={endpoint}>
