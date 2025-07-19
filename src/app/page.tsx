@@ -5,11 +5,12 @@ import { TokenCard } from '@/components/token-card';
 import { TokenData } from '@/lib/data';
 import { Sidebar, SidebarContent, SidebarHeader, SidebarInset, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarRail } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
-import { Flame, Sparkles, Rocket, Star, Users, RefreshCw, ShoppingCart, ShieldCheck, Eye } from 'lucide-react';
+import { Flame, Sparkles, Bell, Star, Users, RefreshCw, ShoppingCart, ShieldCheck, Eye } from 'lucide-react';
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useToast } from '@/hooks/use-toast';
+import { NotificationSettings } from '@/components/notification-settings';
 
-type MenuKey = 'hot' | 'new' | 'watchlist' | 'community';
+type MenuKey = 'hot' | 'notifications' | 'watchlist' | 'community';
 type SuggestionType = '买入' | '保守买入' | '观望';
 
 const REFRESH_INTERVAL = 60; // 60 seconds
@@ -20,10 +21,10 @@ const menuConfig: Record<MenuKey, { title: string; icon: React.ElementType, labe
     icon: Sparkles,
     label: '热门监控'
   },
-  new: {
-    title: '新代币',
-    icon: Rocket,
-    label: '新代币'
+  notifications: {
+    title: '通知',
+    icon: Bell,
+    label: '通知'
   },
   watchlist: {
     title: '我的关注',
@@ -58,9 +59,13 @@ const suggestionConfig: Record<SuggestionType, { title: string; icon: React.Elem
 };
 
 
-function PageContent({ title, tokens, onRefresh, isRefreshing, countdown, groupedTokens }: { title: string; tokens: TokenData[], onRefresh: () => void, isRefreshing: boolean, countdown: number, groupedTokens: Record<SuggestionType, TokenData[]> }) {
+function PageContent({ title, tokens, onRefresh, isRefreshing, countdown, groupedTokens, activeMenu }: { title: string; tokens: TokenData[], onRefresh: () => void, isRefreshing: boolean, countdown: number, groupedTokens: Record<SuggestionType, TokenData[]>, activeMenu: MenuKey }) {
   const hasHotTokens = Object.values(groupedTokens).some(group => group.length > 0);
   
+  if (activeMenu === 'notifications') {
+    return <NotificationSettings />;
+  }
+
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
@@ -72,7 +77,7 @@ function PageContent({ title, tokens, onRefresh, isRefreshing, countdown, groupe
           </Button>
         )}
       </div>
-      {title === '热门监控' ? (
+      {activeMenu === 'hot' ? (
         hasHotTokens ? (
            <div className="space-y-8">
             {(Object.keys(suggestionConfig) as SuggestionType[]).map((groupName) => {
@@ -240,7 +245,7 @@ export default function Home() {
       <SidebarInset>
         <main className="flex-1 p-6 lg:p-8">
           <Header />
-          {isLoading ? <p>Loading...</p> : <PageContent title={title} tokens={tokens} onRefresh={fetchData} isRefreshing={isRefreshing} countdown={countdown} groupedTokens={groupedTokens} />}
+          {isLoading ? <p>Loading...</p> : <PageContent title={title} tokens={tokens} onRefresh={fetchData} isRefreshing={isRefreshing} countdown={countdown} groupedTokens={groupedTokens} activeMenu={activeMenu}/>}
         </main>
       </SidebarInset>
     </div>
