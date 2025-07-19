@@ -61,8 +61,9 @@ const suggestionConfig: Record<SuggestionType, { title: string; icon: React.Elem
 };
 
 
-function PageContent({ title, onRefresh, isRefreshing, countdown, groupedTokens, activeMenu }: { title: string; onRefresh: () => void, isRefreshing: boolean, countdown: number, groupedTokens: Record<SuggestionType, TokenData[]>, activeMenu: MenuKey }) {
+function PageContent({ onRefresh, isRefreshing, countdown, groupedTokens, activeMenu }: { onRefresh: () => void, isRefreshing: boolean, countdown: number, groupedTokens: Record<SuggestionType, TokenData[]>, activeMenu: MenuKey }) {
   const hasHotTokens = Object.values(groupedTokens).some(group => group.length > 0);
+  const { title } = menuConfig[activeMenu];
 
   const renderContent = () => {
     switch(activeMenu) {
@@ -176,11 +177,13 @@ export default function Home() {
       setAllTokens(transformedData);
     } catch (error) {
       console.error("Failed to fetch tokens:", error);
-      toast({
-        title: "错误",
-        description: "无法获取代币数据，请稍后再试。",
-        variant: "destructive",
-      });
+      if (allTokens.length === 0) { // Only show toast if there's no data to show
+        toast({
+          title: "错误",
+          description: "无法获取代币数据，请稍后再试。",
+          variant: "destructive",
+        });
+      }
       // Do not clear tokens on error during refresh
     } finally {
       if (isInitialLoad) {
@@ -189,7 +192,7 @@ export default function Home() {
       setIsRefreshing(false);
       setCountdown(REFRESH_INTERVAL);
     }
-  }, [toast]);
+  }, [toast, allTokens.length]);
 
   useEffect(() => {
     fetchData(true);
@@ -227,7 +230,6 @@ export default function Home() {
     return groups;
   }, [activeMenu, allTokens]);
 
-  const { title } = menuConfig[activeMenu];
   const isLoading = loading && activeMenu === 'hot';
 
   return (
@@ -269,10 +271,10 @@ export default function Home() {
           </div>
         </SidebarContent>
       </Sidebar>
-      <div className="flex flex-col w-full">
+      <div className="flex flex-col">
         <Header />
         <main className="flex-1 p-6 lg:p-8">
-          {isLoading ? <LoadingSkeleton /> : <PageContent title={title} onRefresh={fetchData} isRefreshing={isRefreshing} countdown={countdown} groupedTokens={groupedTokens} activeMenu={activeMenu}/>}
+          {isLoading ? <LoadingSkeleton /> : <PageContent onRefresh={fetchData} isRefreshing={isRefreshing} countdown={countdown} groupedTokens={groupedTokens} activeMenu={activeMenu}/>}
         </main>
       </div>
     </div>
