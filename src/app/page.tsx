@@ -181,9 +181,7 @@ export default function Home() {
         description: "无法获取代币数据，请稍后再试。",
         variant: "destructive",
       });
-      if (isInitialLoad) {
-        setAllTokens([]);
-      }
+      // Do not clear tokens on error during refresh
     } finally {
       if (isInitialLoad) {
         setLoading(false);
@@ -271,7 +269,7 @@ export default function Home() {
           </div>
         </SidebarContent>
       </Sidebar>
-      <div className="flex flex-col">
+      <div className="flex flex-col w-full">
         <Header />
         <main className="flex-1 p-6 lg:p-8">
           {isLoading ? <LoadingSkeleton /> : <PageContent title={title} onRefresh={fetchData} isRefreshing={isRefreshing} countdown={countdown} groupedTokens={groupedTokens} activeMenu={activeMenu}/>}
