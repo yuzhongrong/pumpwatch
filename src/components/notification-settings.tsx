@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -124,17 +125,11 @@ export function NotificationSettings() {
   
   if (!connected) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle>连接钱包</CardTitle>
-          <CardDescription>请先连接您的钱包以管理邮件通知。</CardDescription>
-        </CardHeader>
-        <CardContent className="flex flex-col items-center justify-center h-40 text-center">
-            <Wallet className="h-12 w-12 text-muted-foreground mb-4" />
-            <p className="text-lg font-semibold text-foreground">未连接钱包</p>
-            <p className="text-muted-foreground mt-2">点击右上角的按钮连接钱包。</p>
-        </CardContent>
-      </Card>
+      <div className="flex flex-col items-center justify-center h-64 text-center bg-card rounded-lg border border-dashed">
+          <Wallet className="h-12 w-12 text-muted-foreground mb-4" />
+          <p className="text-lg font-semibold text-foreground">未连接钱包</p>
+          <p className="text-muted-foreground mt-2">请先连接您的钱包以管理邮件通知。</p>
+      </div>
     )
   }
 

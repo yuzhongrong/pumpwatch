@@ -72,7 +72,7 @@ function PageContent({ title, onRefresh, isRefreshing, countdown, groupedTokens,
     <div>
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-3xl font-bold tracking-tight text-foreground">{title}</h2>
-        {title === '热门监控' && (
+        {activeMenu === 'hot' && (
            <Button onClick={onRefresh} disabled={isRefreshing} variant="outline" size="sm">
             <RefreshCw className={`h-4 w-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
             {isRefreshing ? '正在刷新...' : `刷新 (${countdown}s)`}
@@ -151,8 +151,9 @@ export default function Home() {
   const fetchData = useCallback(async (isInitialLoad = false) => {
     if (isInitialLoad) {
       setLoading(true);
+    } else {
+      setIsRefreshing(true);
     }
-    setIsRefreshing(true);
 
     try {
       const response = await fetch('/api/tokens');
@@ -176,7 +177,9 @@ export default function Home() {
         setAllTokens([]);
       }
     } finally {
-      setLoading(false);
+      if (isInitialLoad) {
+        setLoading(false);
+      }
       setIsRefreshing(false);
       setCountdown(REFRESH_INTERVAL);
     }
