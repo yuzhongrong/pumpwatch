@@ -1,7 +1,7 @@
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
+import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 
 export function Header() {
   return (
@@ -12,9 +12,7 @@ export function Header() {
         <Input placeholder="Search tokens..." className="pl-9" />
       </div>
       <div className="ml-auto">
-        <Button>
-          Connect Wallet
-        </Button>
+        <WalletMultiButton />
       </div>
     </header>
   );

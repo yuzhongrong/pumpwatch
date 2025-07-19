@@ -25,12 +25,11 @@ async function getClient() {
   return client;
 }
 
-export async function DELETE(request: NextRequest, { params }: { params: { email: string } }) {
-  // This route is deprecated and will be replaced by the new one.
-  // Kept for backward compatibility if needed, but new logic uses [...params]
-  const email = params.email;
-  if (!email) {
-    return NextResponse.json({ message: 'Email is required' }, { status: 400 });
+export async function DELETE(request: NextRequest, { params }: { params: { params: string[] } }) {
+  const [walletAddress, email] = params.params;
+
+  if (!walletAddress || !email) {
+    return NextResponse.json({ message: 'Wallet address and email are required' }, { status: 400 });
   }
 
   try {
@@ -38,10 +37,13 @@ export async function DELETE(request: NextRequest, { params }: { params: { email
     const db = mongoClient.db('pump_watch');
     const collection = db.collection('mails');
 
-    const result = await collection.deleteOne({ email: decodeURIComponent(email) });
+    const result = await collection.deleteOne({ 
+      walletAddress: decodeURIComponent(walletAddress),
+      email: decodeURIComponent(email) 
+    });
 
     if (result.deletedCount === 0) {
-      return NextResponse.json({ message: 'Email not found' }, { status: 404 });
+      return NextResponse.json({ message: 'Subscription not found' }, { status: 404 });
     }
 
     return NextResponse.json({ message: 'Email unsubscribed successfully' }, { status: 200 });

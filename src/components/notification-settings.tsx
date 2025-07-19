@@ -9,28 +9,47 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Trash2 } from 'lucide-react';
+import { Loader2, Trash2, Wallet } from 'lucide-react';
+import { useWallet } from '@solana/wallet-adapter-react';
 
 const formSchema = z.object({
   email: z.string().email({ message: '请输入有效的邮箱地址' }),
 });
 
-const LOCAL_STORAGE_KEY = 'pump_watch_registered_email';
-
 export function NotificationSettings() {
+  const { publicKey, connected } = useWallet();
   const [registeredEmail, setRegisteredEmail] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [isMounted, setIsMounted] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
 
   useEffect(() => {
-    setIsMounted(true);
-    const storedEmail = localStorage.getItem(LOCAL_STORAGE_KEY);
-    if (storedEmail) {
-      setRegisteredEmail(storedEmail);
-    }
-  }, []);
+    const fetchRegisteredEmail = async () => {
+      if (connected && publicKey) {
+        setIsLoading(true);
+        try {
+          const response = await fetch(`/api/mails?walletAddress=${publicKey.toBase58()}`);
+          if (response.ok) {
+            const data = await response.json();
+            setRegisteredEmail(data.email);
+          } else {
+            setRegisteredEmail(null);
+          }
+        } catch (error) {
+          console.error("Failed to fetch registered email:", error);
+          setRegisteredEmail(null);
+        } finally {
+          setIsLoading(false);
+        }
+      } else {
+        setIsLoading(false);
+        setRegisteredEmail(null);
+      }
+    };
+
+    fetchRegisteredEmail();
+  }, [connected, publicKey]);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -40,6 +59,10 @@ export function NotificationSettings() {
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    if (!connected || !publicKey) {
+      toast({ title: '错误', description: '请先连接钱包', variant: 'destructive' });
+      return;
+    }
     setIsSubmitting(true);
     try {
       const response = await fetch('/api/mails', {
@@ -47,14 +70,13 @@ export function NotificationSettings() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email: values.email }),
+        body: JSON.stringify({ email: values.email, walletAddress: publicKey.toBase58() }),
       });
 
       if (!response.ok) {
         throw new Error('订阅失败，请重试');
       }
 
-      localStorage.setItem(LOCAL_STORAGE_KEY, values.email);
       setRegisteredEmail(values.email);
       form.reset();
       toast({
@@ -73,10 +95,10 @@ export function NotificationSettings() {
   };
 
   const handleDelete = async () => {
-    if (!registeredEmail) return;
+    if (!registeredEmail || !publicKey) return;
     setIsDeleting(true);
     try {
-      const response = await fetch(`/api/mails/${encodeURIComponent(registeredEmail)}`, {
+      const response = await fetch(`/api/mails/${publicKey.toBase58()}/${encodeURIComponent(registeredEmail)}`, {
         method: 'DELETE',
       });
 
@@ -84,7 +106,6 @@ export function NotificationSettings() {
         throw new Error('取消订阅失败，请重试');
       }
 
-      localStorage.removeItem(LOCAL_STORAGE_KEY);
       setRegisteredEmail(null);
       toast({
         title: '取消订阅成功',
@@ -100,9 +121,34 @@ export function NotificationSettings() {
       setIsDeleting(false);
     }
   };
+  
+  if (!connected) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>连接钱包</CardTitle>
+          <CardDescription>请先连接您的钱包以管理邮件通知。</CardDescription>
+        </CardHeader>
+        <CardContent className="flex flex-col items-center justify-center h-40 text-center">
+            <Wallet className="h-12 w-12 text-muted-foreground mb-4" />
+            <p className="text-lg font-semibold text-foreground">未连接钱包</p>
+            <p className="text-muted-foreground mt-2">点击右上角的按钮连接钱包。</p>
+        </CardContent>
+      </Card>
+    )
+  }
 
-  if (!isMounted) {
-    return null; 
+  if (isLoading) {
+    return (
+        <Card>
+            <CardHeader>
+                <CardTitle>通知设置</CardTitle>
+            </CardHeader>
+            <CardContent className="flex items-center justify-center h-40">
+                <Loader2 className="h-8 w-8 animate-spin" />
+            </CardContent>
+        </Card>
+    )
   }
 
   if (registeredEmail) {
@@ -110,7 +156,7 @@ export function NotificationSettings() {
       <Card>
         <CardHeader>
           <CardTitle>通知设置</CardTitle>
-          <CardDescription>您已订阅新代币通知。您的邮箱地址如下：</CardDescription>
+          <CardDescription>您已使用当前钱包订阅新代币通知。您的邮箱地址如下：</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center justify-between p-3 bg-muted rounded-md">

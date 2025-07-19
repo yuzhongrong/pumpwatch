@@ -3,6 +3,8 @@ import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { Inter } from 'next/font/google';
+import { WalletContextProvider } from '@/components/wallet-provider';
+import "@solana/wallet-adapter-react-ui/styles.css";
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 
@@ -21,9 +23,11 @@ export default function RootLayout({
       <head>
       </head>
       <body className={`${inter.variable} font-sans antialiased`}>
-        <SidebarProvider>
-          {children}
-        </SidebarProvider>
+        <WalletContextProvider>
+          <SidebarProvider>
+            {children}
+          </SidebarProvider>
+        </WalletContextProvider>
         <Toaster />
       </body>
     </html>
