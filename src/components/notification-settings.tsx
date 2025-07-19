@@ -7,7 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Trash2, Wallet } from 'lucide-react';
@@ -125,11 +125,19 @@ export function NotificationSettings() {
   
   if (!connected) {
     return (
-      <div className="flex flex-col items-center justify-center h-64 text-center bg-card rounded-lg border border-dashed">
-          <Wallet className="h-12 w-12 text-muted-foreground mb-4" />
-          <p className="text-lg font-semibold text-foreground">未连接钱包</p>
-          <p className="text-muted-foreground mt-2">请先连接您的钱包以管理邮件通知。</p>
-      </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>通知设置</CardTitle>
+          <CardDescription>连接您的钱包以管理邮件通知。</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-col items-center justify-center h-48 text-center bg-muted/50 rounded-lg border border-dashed">
+              <Wallet className="h-12 w-12 text-muted-foreground mb-4" />
+              <p className="text-lg font-semibold text-foreground">未连接钱包</p>
+              <p className="text-muted-foreground mt-2 text-sm">请先连接您的钱包以管理邮件通知。</p>
+          </div>
+        </CardContent>
+      </Card>
     )
   }
 
@@ -138,9 +146,10 @@ export function NotificationSettings() {
         <Card>
             <CardHeader>
                 <CardTitle>通知设置</CardTitle>
+                <CardDescription>正在加载您的订阅信息...</CardDescription>
             </CardHeader>
-            <CardContent className="flex items-center justify-center h-40">
-                <Loader2 className="h-8 w-8 animate-spin" />
+            <CardContent className="flex items-center justify-center h-48">
+                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
             </CardContent>
         </Card>
     )
