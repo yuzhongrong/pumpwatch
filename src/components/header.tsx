@@ -7,9 +7,9 @@ export function Header() {
   return (
     <header className="sticky top-0 z-10 flex h-16 items-center gap-4 border-b bg-background/80 px-6 backdrop-blur-sm">
       <SidebarTrigger className="md:hidden" />
-      <div className="relative flex-1 max-w-md">
+      <div className="relative flex-1">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-        <Input placeholder="Search tokens..." className="pl-9" />
+        <Input placeholder="Search tokens..." className="pl-9 max-w-md" />
       </div>
       <div className="ml-auto">
         <WalletMultiButton 
