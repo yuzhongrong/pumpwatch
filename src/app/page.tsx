@@ -148,11 +148,12 @@ export default function Home() {
   const [countdown, setCountdown] = useState(REFRESH_INTERVAL);
   const { toast } = useToast();
 
-  const fetchData = useCallback(async () => {
-    setIsRefreshing(true);
-    if (allTokens.length === 0) {
+  const fetchData = useCallback(async (isInitialLoad = false) => {
+    if (isInitialLoad) {
       setLoading(true);
     }
+    setIsRefreshing(true);
+
     try {
       const response = await fetch('/api/tokens');
       if (!response.ok) {
@@ -171,16 +172,18 @@ export default function Home() {
         description: "无法获取代币数据，请稍后再试。",
         variant: "destructive",
       });
-      setAllTokens([]);
+      if (isInitialLoad) {
+        setAllTokens([]);
+      }
     } finally {
       setLoading(false);
       setIsRefreshing(false);
       setCountdown(REFRESH_INTERVAL);
     }
-  }, [allTokens.length, toast]);
+  }, [toast]);
 
   useEffect(() => {
-    fetchData();
+    fetchData(true);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -216,7 +219,7 @@ export default function Home() {
   }, [activeMenu, allTokens]);
 
   const { title } = menuConfig[activeMenu];
-  const isLoading = loading && !isRefreshing;
+  const isLoading = loading;
 
   return (
     <div className="flex">
