@@ -298,7 +298,7 @@ export function NotificationSettings() {
     <Card className="w-full">
       <CardHeader>
         <CardTitle>订阅通知</CardTitle>
-        <CardDescription>订阅你的邮箱用于接收购实时的代币购买信号。</CardDescription>
+        <CardDescription>订阅你的邮箱用于接收实时的购买信号</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="mb-4 p-3 rounded-md bg-muted/50 border">
