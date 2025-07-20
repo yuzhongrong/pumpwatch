@@ -13,16 +13,16 @@ const wallets = [
     new PhantomWalletAdapter(),
 ];
 
-// The RPC URL can be hardcoded here or moved to a config file if needed.
-const RPC_URL = 'https://solana-mainnet.g.alchemy.com/v2/OVRoIW0R8UI0-y7OKYJO0L4FtpbWjWkv';
-
 export const WalletContextProvider = ({
     children,
 }: {
     children: React.ReactNode;
 }) => {
+    // The RPC URL can be taken from environment variables, with a fallback to the public cluster API.
+    const endpoint = process.env.NEXT_PUBLIC_SOLANA_RPC_URL || clusterApiUrl(WalletAdapterNetwork.Mainnet);
+
     return (
-        <ConnectionProvider endpoint={RPC_URL}>
+        <ConnectionProvider endpoint={endpoint}>
             <WalletProvider wallets={wallets} autoConnect>
                 <WalletModalProvider>{children}</WalletModalProvider>
             </WalletProvider>

@@ -29,12 +29,12 @@ interface SubscriptionData {
   status: SubscriptionStatus;
 }
 
-// Configuration values are now hardcoded to avoid environment variable issues.
-const PLATFORM_WALLET_ADDRESS_STR = '6SKRfAf7EZRS4epdNyDXevNVy8MD5pqyNcvfUJqg4MJ9';
-const PW_TOKEN_MINT_ADDRESS_STR = '9JhMgJ3AseZbwRLRvLq7Xo2dEhzMBzieCTGRJ5vMjhv1';
-const SUBSCRIPTION_COST_STR = '100000';
+const PLATFORM_WALLET_ADDRESS_STR = process.env.NEXT_PUBLIC_PLATFORM_WALLET_ADDRESS;
+const PW_TOKEN_MINT_ADDRESS_STR = process.env.NEXT_PUBLIC_PW_TOKEN_MINT_ADDRESS;
+const SUBSCRIPTION_COST_STR = process.env.NEXT_PUBLIC_SUBSCRIPTION_COST;
 
 const isConfigValid = PLATFORM_WALLET_ADDRESS_STR && PW_TOKEN_MINT_ADDRESS_STR && SUBSCRIPTION_COST_STR;
+
 
 export function NotificationSettings() {
   const { publicKey, connected, sendTransaction, wallet } = useWallet();
@@ -293,7 +293,7 @@ export function NotificationSettings() {
       <CardContent>
         <div className="mb-4 p-3 rounded-md bg-muted/50 border">
             <p className="text-sm font-medium text-foreground">订阅费用</p>
-            <p className="text-lg font-bold text-primary">{new Intl.NumberFormat().format(subscriptionCost)} PW</p>
+            <p className="text-lg font-bold text-primary">{subscriptionCost ? new Intl.NumberFormat().format(subscriptionCost) : '...' } PW</p>
             <p className="text-xs text-muted-foreground mt-1">
                 您的余额: <span className="font-mono">{new Intl.NumberFormat().format(pwBalance)} PW</span>
             </p>
@@ -313,12 +313,12 @@ export function NotificationSettings() {
                 </FormItem>
               )}
             />
-            <Button type="submit" disabled={isSubmitting || pwBalance < subscriptionCost}>
+            <Button type="submit" disabled={isSubmitting || pwBalance < (subscriptionCost || Infinity)}>
               {isSubmitting ? (
                 <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> 正在订阅...</>
               ) : `支付并订阅`}
             </Button>
-            {pwBalance < subscriptionCost && (
+            {pwBalance < (subscriptionCost || Infinity) && (
                 <p className="text-sm text-destructive">您的PW代币余额不足以完成订阅。</p>
             )}
           </form>
