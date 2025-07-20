@@ -93,8 +93,15 @@ export function NotificationSettings() {
             } else {
                 setPwBalance(0);
             }
-        } catch (e) {
+        } catch (e: any) {
             console.error("Could not get token balance", e);
+            if (e.message?.includes('403')) {
+                 toast({
+                    title: "RPC 访问被拒绝",
+                    description: "请检查您的 Alchemy API 密钥以及域名白名单设置。",
+                    variant: "destructive",
+                });
+            }
             setPwBalance(0);
         }
       } catch (error) {
@@ -109,7 +116,7 @@ export function NotificationSettings() {
       setSubscription(null);
       setPwBalance(0);
     }
-  }, [connected, publicKey, connection, pwTokenMint]);
+  }, [connected, publicKey, connection, pwTokenMint, toast]);
 
   useEffect(() => {
     fetchSubscriptionAndBalance();
