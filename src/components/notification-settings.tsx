@@ -29,10 +29,10 @@ interface SubscriptionData {
   status: SubscriptionStatus;
 }
 
-// Safely get environment variables
-const PLATFORM_WALLET_ADDRESS_STR = process.env.NEXT_PUBLIC_PLATFORM_WALLET_ADDRESS;
-const PW_TOKEN_MINT_ADDRESS_STR = process.env.NEXT_PUBLIC_PW_TOKEN_MINT_ADDRESS;
-const SUBSCRIPTION_COST_STR = process.env.NEXT_PUBLIC_SUBSCRIPTION_COST;
+// Configuration values are now hardcoded to avoid environment variable issues.
+const PLATFORM_WALLET_ADDRESS_STR = '6SKRfAf7EZRS4epdNyDXevNVy8MD5pqyNcvfUJqg4MJ9';
+const PW_TOKEN_MINT_ADDRESS_STR = '9JhMgJ3AseZbwRLRvLq7Xo2dEhzMBzieCTGRJ5vMjhv1';
+const SUBSCRIPTION_COST_STR = '100000';
 
 const isConfigValid = PLATFORM_WALLET_ADDRESS_STR && PW_TOKEN_MINT_ADDRESS_STR && SUBSCRIPTION_COST_STR;
 
@@ -58,7 +58,7 @@ export function NotificationSettings() {
             setPwTokenMint(new PublicKey(PW_TOKEN_MINT_ADDRESS_STR));
             setSubscriptionCost(parseInt(SUBSCRIPTION_COST_STR, 10));
         } catch (error) {
-            console.error("Invalid public key in environment variables.", error);
+            console.error("Invalid public key in configuration.", error);
             toast({
                 title: "配置错误",
                 description: "钱包或代币地址无效，请联系管理员。",
