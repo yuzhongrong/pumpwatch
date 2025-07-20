@@ -6,13 +6,12 @@ import { NextRequest, NextResponse } from 'next/server';
 const MONGODB_URI = process.env.MONGODB_URI;
 
 if (!MONGODB_URI) {
-  throw new Error('Please define the MONGODB_URI environment variable inside .env.local');
+  throw new Error('Please define the MONGODB_URI environment variable inside .env');
 }
 
-let client: MongoClient;
-
-async function getClient() {
-  if (!client) {
+async function withDb(dbOperation: (db: any) => Promise<NextResponse>) {
+  let client;
+  try {
     client = new MongoClient(MONGODB_URI, {
       serverApi: {
         version: ServerApiVersion.v1,
@@ -21,8 +20,16 @@ async function getClient() {
       },
     });
     await client.connect();
+    const db = client.db('pump_watch');
+    return await dbOperation(db);
+  } catch (error) {
+    console.error('Database operation failed:', error);
+    return NextResponse.json({ message: 'Internal Server Error' }, { status: 500 });
+  } finally {
+    if (client) {
+      await client.close();
+    }
   }
-  return client;
 }
 
 export async function DELETE(request: NextRequest, { params }: { params: { params: string[] } }) {
@@ -32,9 +39,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { param
     return NextResponse.json({ message: 'Wallet address and email are required' }, { status: 400 });
   }
 
-  try {
-    const mongoClient = await getClient();
-    const db = mongoClient.db('pump_watch');
+  return await withDb(async (db) => {
     const collection = db.collection('mails');
 
     const result = await collection.deleteOne({ 
@@ -47,8 +52,5 @@ export async function DELETE(request: NextRequest, { params }: { params: { param
     }
 
     return NextResponse.json({ message: 'Email unsubscribed successfully' }, { status: 200 });
-  } catch (error) {
-    console.error('Failed to unsubscribe email:', error);
-    return NextResponse.json({ message: 'Internal Server Error' }, { status: 500 });
-  }
+  });
 }

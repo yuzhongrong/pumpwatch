@@ -6,13 +6,12 @@ import { NextRequest, NextResponse } from 'next/server';
 const MONGODB_URI = process.env.MONGODB_URI;
 
 if (!MONGODB_URI) {
-  throw new Error('Please define the MONGODB_URI environment variable inside .env.local');
+  throw new Error('Please define the MONGODB_URI environment variable inside .env');
 }
 
-let client: MongoClient;
-
-async function getClient() {
-  if (!client) {
+async function withDb(dbOperation: (db: any) => Promise<NextResponse>) {
+  let client;
+  try {
     client = new MongoClient(MONGODB_URI, {
       serverApi: {
         version: ServerApiVersion.v1,
@@ -21,8 +20,16 @@ async function getClient() {
       },
     });
     await client.connect();
+    const db = client.db('pump_watch');
+    return await dbOperation(db);
+  } catch (error) {
+    console.error('Database operation failed:', error);
+    return NextResponse.json({ message: 'Internal Server Error' }, { status: 500 });
+  } finally {
+    if (client) {
+      await client.close();
+    }
   }
-  return client;
 }
 
 export async function POST(request: NextRequest) {
@@ -33,28 +40,27 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ message: 'Email, wallet address, txid, and pwAmount are required' }, { status: 400 });
     }
 
-    const mongoClient = await getClient();
-    const db = mongoClient.db('pump_watch');
-    const collection = db.collection('mails');
-    
-    await collection.updateOne(
-      { walletAddress, email },
-      { $set: { 
-          walletAddress, 
-          email, 
-          txid,
-          pwAmount,
-          subscribedAt: new Date(),
-          status: 'active'
-        } 
-      },
-      { upsert: true }
-    );
-
-    return NextResponse.json({ message: 'Email subscribed successfully' }, { status: 201 });
+    return await withDb(async (db) => {
+      const collection = db.collection('mails');
+      await collection.updateOne(
+        { walletAddress, email },
+        { $set: { 
+            walletAddress, 
+            email, 
+            txid,
+            pwAmount,
+            subscribedAt: new Date(),
+            status: 'active'
+          } 
+        },
+        { upsert: true }
+      );
+      return NextResponse.json({ message: 'Email subscribed successfully' }, { status: 201 });
+    });
   } catch (error) {
-    console.error('Failed to subscribe email:', error);
-    return NextResponse.json({ message: 'Internal Server Error' }, { status: 500 });
+    console.error('Failed to parse request or subscribe email:', error);
+    // This catches errors from request.json() if the body is malformed.
+    return NextResponse.json({ message: 'Bad Request' }, { status: 400 });
   }
 }
 
@@ -66,20 +72,13 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ message: 'Wallet address is required' }, { status: 400 });
   }
 
-  try {
-    const mongoClient = await getClient();
-    const db = mongoClient.db('pump_watch');
+  return await withDb(async (db) => {
     const collection = db.collection('mails');
-
     const subscription = await collection.findOne({ walletAddress });
 
     if (!subscription) {
       return NextResponse.json({ message: 'Subscription not found' }, { status: 404 });
     }
-
     return NextResponse.json(subscription, { status: 200 });
-  } catch (error) {
-    console.error('Failed to get email:', error);
-    return NextResponse.json({ message: 'Internal Server Error' }, { status: 500 });
-  }
+  });
 }
