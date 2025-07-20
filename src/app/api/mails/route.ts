@@ -27,10 +27,10 @@ async function getClient() {
 
 export async function POST(request: NextRequest) {
   try {
-    const { email, walletAddress } = await request.json();
+    const { email, walletAddress, txid, pwAmount } = await request.json();
 
-    if (!email || !walletAddress) {
-      return NextResponse.json({ message: 'Email and wallet address are required' }, { status: 400 });
+    if (!email || !walletAddress || !txid || pwAmount === undefined) {
+      return NextResponse.json({ message: 'Email, wallet address, txid, and pwAmount are required' }, { status: 400 });
     }
 
     const mongoClient = await getClient();
@@ -39,7 +39,15 @@ export async function POST(request: NextRequest) {
     
     await collection.updateOne(
       { walletAddress, email },
-      { $set: { walletAddress, email, subscribedAt: new Date() } },
+      { $set: { 
+          walletAddress, 
+          email, 
+          txid,
+          pwAmount,
+          subscribedAt: new Date(),
+          status: 'active'
+        } 
+      },
       { upsert: true }
     );
 
@@ -66,10 +74,10 @@ export async function GET(request: NextRequest) {
     const subscription = await collection.findOne({ walletAddress });
 
     if (!subscription) {
-      return NextResponse.json({ message: 'Email not found' }, { status: 404 });
+      return NextResponse.json({ message: 'Subscription not found' }, { status: 404 });
     }
 
-    return NextResponse.json({ email: subscription.email }, { status: 200 });
+    return NextResponse.json(subscription, { status: 200 });
   } catch (error) {
     console.error('Failed to get email:', error);
     return NextResponse.json({ message: 'Internal Server Error' }, { status: 500 });
