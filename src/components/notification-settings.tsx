@@ -8,7 +8,7 @@ import { z } from 'zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Form, FormControl, FormDescription as FormDescriptionComponent, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Trash2, Wallet, BadgeCheck, AlertCircle } from 'lucide-react';
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
@@ -298,7 +298,7 @@ export function NotificationSettings() {
     <Card className="w-full">
       <CardHeader>
         <CardTitle>订阅通知</CardTitle>
-        <CardDescription>订阅你的邮箱用于接收购实时的代币买信号提醒。</CardDescription>
+        <CardDescription>订阅你的邮箱用于接收购实时的代币购买信号。</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="mb-4 p-3 rounded-md bg-muted/50 border">
@@ -319,6 +319,9 @@ export function NotificationSettings() {
                   <FormControl>
                     <Input placeholder="you@example.com" {...field} />
                   </FormControl>
+                  <FormDescriptionComponent>
+                    变更邮箱需要重新支付费用。
+                  </FormDescriptionComponent>
                   <FormMessage />
                 </FormItem>
               )}
@@ -337,5 +340,3 @@ export function NotificationSettings() {
     </Card>
   );
 }
-
-    
