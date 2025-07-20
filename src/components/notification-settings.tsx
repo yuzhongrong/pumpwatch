@@ -10,19 +10,16 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Trash2, Wallet, BadgeCheck } from 'lucide-react';
+import { Loader2, Trash2, Wallet, BadgeCheck, AlertCircle } from 'lucide-react';
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
-import { Connection, PublicKey, Transaction, SystemProgram } from '@solana/web3.js';
+import { PublicKey, Transaction } from '@solana/web3.js';
 import { getAssociatedTokenAddress, createTransferInstruction, getAccount } from '@solana/spl-token';
+import { Alert, AlertDescription, AlertTitle } from './ui/alert';
 
 const formSchema = z.object({
   email: z.string().email({ message: '请输入有效的邮箱地址' }),
 });
 
-const RPC_URL = process.env.NEXT_PUBLIC_SOLANA_RPC_URL!;
-const PLATFORM_WALLET_ADDRESS = new PublicKey(process.env.NEXT_PUBLIC_PLATFORM_WALLET_ADDRESS!);
-const PW_TOKEN_MINT_ADDRESS = new PublicKey(process.env.NEXT_PUBLIC_PW_TOKEN_MINT_ADDRESS!);
-const SUBSCRIPTION_COST = parseInt(process.env.NEXT_PUBLIC_SUBSCRIPTION_COST!, 10);
 const PW_TOKEN_DECIMALS = 6; // Assuming PW token has 6 decimals
 
 type SubscriptionStatus = 'inactive' | 'active';
@@ -31,6 +28,13 @@ interface SubscriptionData {
   email: string;
   status: SubscriptionStatus;
 }
+
+// Safely get environment variables
+const PLATFORM_WALLET_ADDRESS_STR = process.env.NEXT_PUBLIC_PLATFORM_WALLET_ADDRESS;
+const PW_TOKEN_MINT_ADDRESS_STR = process.env.NEXT_PUBLIC_PW_TOKEN_MINT_ADDRESS;
+const SUBSCRIPTION_COST_STR = process.env.NEXT_PUBLIC_SUBSCRIPTION_COST;
+
+const isConfigValid = PLATFORM_WALLET_ADDRESS_STR && PW_TOKEN_MINT_ADDRESS_STR && SUBSCRIPTION_COST_STR;
 
 export function NotificationSettings() {
   const { publicKey, connected, sendTransaction, wallet } = useWallet();
@@ -42,8 +46,31 @@ export function NotificationSettings() {
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
 
+  const [platformWallet, setPlatformWallet] = useState<PublicKey | null>(null);
+  const [pwTokenMint, setPwTokenMint] = useState<PublicKey | null>(null);
+  const [subscriptionCost, setSubscriptionCost] = useState<number>(0);
+
+
+  useEffect(() => {
+    if (isConfigValid) {
+        try {
+            setPlatformWallet(new PublicKey(PLATFORM_WALLET_ADDRESS_STR));
+            setPwTokenMint(new PublicKey(PW_TOKEN_MINT_ADDRESS_STR));
+            setSubscriptionCost(parseInt(SUBSCRIPTION_COST_STR, 10));
+        } catch (error) {
+            console.error("Invalid public key in environment variables.", error);
+            toast({
+                title: "配置错误",
+                description: "钱包或代币地址无效，请联系管理员。",
+                variant: "destructive",
+            });
+        }
+    }
+  }, [toast]);
+
+
   const fetchSubscriptionAndBalance = useCallback(async () => {
-    if (connected && publicKey) {
+    if (connected && publicKey && pwTokenMint) {
       setIsLoading(true);
       try {
         // Fetch subscription status
@@ -57,7 +84,7 @@ export function NotificationSettings() {
 
         // Fetch PW token balance
         try {
-            const tokenAccount = await getAssociatedTokenAddress(PW_TOKEN_MINT_ADDRESS, publicKey);
+            const tokenAccount = await getAssociatedTokenAddress(pwTokenMint, publicKey);
             const accountInfo = await connection.getAccountInfo(tokenAccount);
             if (accountInfo) {
                 const accountData = await getAccount(connection, tokenAccount);
@@ -82,7 +109,7 @@ export function NotificationSettings() {
       setSubscription(null);
       setPwBalance(0);
     }
-  }, [connected, publicKey, connection]);
+  }, [connected, publicKey, connection, pwTokenMint]);
 
   useEffect(() => {
     fetchSubscriptionAndBalance();
@@ -94,25 +121,25 @@ export function NotificationSettings() {
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    if (!connected || !publicKey || !wallet?.adapter) {
-      toast({ title: '错误', description: '请先连接钱包', variant: 'destructive' });
+    if (!connected || !publicKey || !wallet?.adapter || !platformWallet || !pwTokenMint || !subscriptionCost) {
+      toast({ title: '错误', description: '钱包未连接或配置不完整', variant: 'destructive' });
       return;
     }
-    if (pwBalance < SUBSCRIPTION_COST) {
+    if (pwBalance < subscriptionCost) {
         toast({ title: '错误', description: 'PW 代币余额不足', variant: 'destructive' });
         return;
     }
     setIsSubmitting(true);
     try {
-        const fromTokenAccount = await getAssociatedTokenAddress(PW_TOKEN_MINT_ADDRESS, publicKey);
-        const toTokenAccount = await getAssociatedTokenAddress(PW_TOKEN_MINT_ADDRESS, PLATFORM_WALLET_ADDRESS);
+        const fromTokenAccount = await getAssociatedTokenAddress(pwTokenMint, publicKey);
+        const toTokenAccount = await getAssociatedTokenAddress(pwTokenMint, platformWallet);
 
         const transaction = new Transaction().add(
             createTransferInstruction(
                 fromTokenAccount,
                 toTokenAccount,
                 publicKey,
-                SUBSCRIPTION_COST * (10 ** PW_TOKEN_DECIMALS)
+                subscriptionCost * (10 ** PW_TOKEN_DECIMALS)
             )
         );
 
@@ -131,12 +158,13 @@ export function NotificationSettings() {
             email: values.email, 
             walletAddress: publicKey.toBase58(),
             txid: signature,
-            pwAmount: SUBSCRIPTION_COST
+            pwAmount: subscriptionCost
         }),
       });
 
       if (!response.ok) {
-        throw new Error('订阅失败，请重试');
+        const errorData = await response.json();
+        throw new Error(errorData.message || '订阅失败，请重试');
       }
 
       await fetchSubscriptionAndBalance(); // Refresh data
@@ -163,12 +191,13 @@ export function NotificationSettings() {
       });
 
       if (!response.ok) {
-        throw new Error('取消订阅失败，请重试');
+        const errorData = await response.json();
+        throw new Error(errorData.message || '取消订阅失败，请重试');
       }
 
       setSubscription(null);
       toast({ title: '取消订阅成功', description: '您已取消邮件通知' });
-    } catch (error: any) {
+    } catch (error: any)      {
       toast({
         title: '错误',
         description: error.message || '取消订阅时发生未知错误',
@@ -178,6 +207,26 @@ export function NotificationSettings() {
       setIsDeleting(false);
     }
   };
+
+  if (!isConfigValid) {
+     return (
+        <Card className="w-full">
+        <CardHeader>
+          <CardTitle>通知设置</CardTitle>
+          <CardDescription>此功能暂未开放</CardDescription>
+        </CardHeader>
+        <CardContent>
+             <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertTitle>功能未配置</AlertTitle>
+                <AlertDescription>
+                    通知订阅功能暂不可用，请联系管理员进行配置。
+                </AlertDescription>
+            </Alert>
+        </CardContent>
+      </Card>
+     )
+  }
 
   if (!connected) {
     return (
@@ -244,7 +293,7 @@ export function NotificationSettings() {
       <CardContent>
         <div className="mb-4 p-3 rounded-md bg-muted/50 border">
             <p className="text-sm font-medium text-foreground">订阅费用</p>
-            <p className="text-lg font-bold text-primary">{new Intl.NumberFormat().format(SUBSCRIPTION_COST)} PW</p>
+            <p className="text-lg font-bold text-primary">{new Intl.NumberFormat().format(subscriptionCost)} PW</p>
             <p className="text-xs text-muted-foreground mt-1">
                 您的余额: <span className="font-mono">{new Intl.NumberFormat().format(pwBalance)} PW</span>
             </p>
@@ -264,12 +313,12 @@ export function NotificationSettings() {
                 </FormItem>
               )}
             />
-            <Button type="submit" disabled={isSubmitting || pwBalance < SUBSCRIPTION_COST}>
+            <Button type="submit" disabled={isSubmitting || pwBalance < subscriptionCost}>
               {isSubmitting ? (
                 <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> 正在订阅...</>
               ) : `支付并订阅`}
             </Button>
-            {pwBalance < SUBSCRIPTION_COST && (
+            {pwBalance < subscriptionCost && (
                 <p className="text-sm text-destructive">您的PW代币余额不足以完成订阅。</p>
             )}
           </form>
