@@ -33,6 +33,31 @@ async function withDb(dbOperation: (db: any) => Promise<NextResponse>) {
   }
 }
 
+let ttlIndexDropped = false;
+
+async function ensureTtlIndexDropped(collection: any) {
+    if (ttlIndexDropped) {
+        return;
+    }
+    try {
+        // Attempt to drop a potential TTL index on 'subscribedAt'.
+        // The default name for an index on this field would be 'subscribedAt_1'.
+        await collection.dropIndex("subscribedAt_1");
+        console.log("Successfully dropped TTL index 'subscribedAt_1' from 'mails' collection.");
+        ttlIndexDropped = true;
+    } catch (error: any) {
+        // This is expected if the index doesn't exist. We can ignore the error.
+        if (error.codeName === 'IndexNotFound') {
+            console.log("TTL index 'subscribedAt_1' not found on 'mails' collection. No action needed.");
+        } else {
+            console.warn("Could not drop TTL index, it might not exist or another error occurred:", error.message);
+        }
+        // Mark as "dropped" to prevent re-trying on every request.
+        ttlIndexDropped = true; 
+    }
+}
+
+
 export async function POST(request: NextRequest) {
   try {
     const { email, walletAddress, txid, pwAmount } = await request.json();
@@ -43,6 +68,10 @@ export async function POST(request: NextRequest) {
 
     return await withDb(async (db) => {
       const collection = db.collection('mails');
+      
+      // Ensure any old TTL index is removed to make data permanent.
+      await ensureTtlIndexDropped(collection);
+
       await collection.updateOne(
         { walletAddress, email },
         { $set: { 
