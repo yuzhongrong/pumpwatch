@@ -1,3 +1,4 @@
+
 'use server';
 
 import { MongoClient, ServerApiVersion } from 'mongodb';
@@ -20,7 +21,7 @@ async function withDb(dbOperation: (db: any) => Promise<NextResponse>) {
       },
     });
     await client.connect();
-    const db = client.db('pump_watch');
+    const db = client.db('pumpwatch'); // Use the database name from the connection string
     return await dbOperation(db);
   } catch (error) {
     console.error('Database operation failed:', error);
