@@ -98,7 +98,7 @@ export function NotificationSettings() {
             if (e.message?.includes('403')) {
                  toast({
                     title: "RPC 访问被拒绝",
-                    description: "请检查您的 Alchemy API 密钥以及域名白名单设置。",
+                    description: "请检查您的 API 密钥以及域名白名单设置。",
                     variant: "destructive",
                 });
             }
@@ -140,8 +140,16 @@ export function NotificationSettings() {
     try {
         const fromTokenAccount = await getAssociatedTokenAddress(pwTokenMint, publicKey);
         const toTokenAccount = await getAssociatedTokenAddress(pwTokenMint, platformWallet);
-
-        const transaction = new Transaction().add(
+        
+        const {
+            context: { slot: minContextSlot },
+            value: { blockhash, lastValidBlockHeight }
+        } = await connection.getLatestBlockhashAndContext();
+        
+        const transaction = new Transaction({
+            recentBlockhash: blockhash,
+            feePayer: publicKey
+        }).add(
             createTransferInstruction(
                 fromTokenAccount,
                 toTokenAccount,
@@ -149,11 +157,6 @@ export function NotificationSettings() {
                 subscriptionCost * (10 ** PW_TOKEN_DECIMALS)
             )
         );
-
-        const {
-            context: { slot: minContextSlot },
-            value: { blockhash, lastValidBlockHeight }
-        } = await connection.getLatestBlockhashAndContext();
         
         const signature = await sendTransaction(transaction, connection, { minContextSlot });
         await connection.confirmTransaction({ blockhash, lastValidBlockHeight, signature });
