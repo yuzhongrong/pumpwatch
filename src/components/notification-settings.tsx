@@ -179,7 +179,7 @@ export function NotificationSettings() {
 
       await fetchSubscriptionAndBalance(); // Refresh data
       form.reset();
-      toast({ title: '订阅成功', description: '您将收到新代币的通知' });
+      toast({ title: '订阅成功', description: '您将收到购买信号的通知' });
     } catch (error: any) {
       console.error(error);
       toast({
