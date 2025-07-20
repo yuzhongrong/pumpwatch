@@ -6,7 +6,6 @@ import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react
 import { WalletAdapterNetwork } from '@solana/wallet-adapter-base';
 import { PhantomWalletAdapter } from '@solana/wallet-adapter-phantom';
 import { WalletModalProvider } from '@solana/wallet-adapter-react-ui';
-import { clusterApiUrl } from '@solana/web3.js';
 
 // Wallets should be defined outside the component render cycle
 const wallets = [
@@ -18,8 +17,8 @@ export const WalletContextProvider = ({
 }: {
     children: React.ReactNode;
 }) => {
-    const network = WalletAdapterNetwork.Mainnet;
-    const endpoint = useMemo(() => clusterApiUrl(network), [network]);
+    // Hardcode the RPC endpoint to ensure the correct one is used, bypassing .env issues.
+    const endpoint = "https://mainnet.helius-rpc.com/?api-key=0ad72fea-567e-4f87-ab99-2a1985319fec";
 
     return (
         <ConnectionProvider endpoint={endpoint}>
