@@ -73,7 +73,7 @@ export async function POST(request: NextRequest) {
       await ensureTtlIndexDropped(collection);
 
       await collection.updateOne(
-        { walletAddress, email },
+        { walletAddress }, // Use only walletAddress as the unique identifier
         { $set: { 
             walletAddress, 
             email, 
