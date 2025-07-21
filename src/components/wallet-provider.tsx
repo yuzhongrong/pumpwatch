@@ -15,21 +15,20 @@ const wallets = [
 
 export const WalletContextProvider = ({
     children,
+    rpcUrl,
 }: {
     children: React.ReactNode;
+    rpcUrl?: string;
 }) => {
-    // Read the RPC endpoint from environment variables.
-    // IMPORTANT: When you change the .env file, you MUST restart the development server for the changes to take effect.
-    const endpoint = process.env.NEXT_PUBLIC_SOLANA_RPC_URL;
+    // The RPC endpoint is now passed as a prop from a server component.
+    const endpoint = rpcUrl;
 
     // useMemo helps to avoid re-creating the adapter array on every render.
     const memoizedWallets = useMemo(() => wallets, []);
 
     if (!endpoint) {
-        // This provides a fallback and a clear error message if the .env variable is not set.
-        console.error("NEXT_PUBLIC_SOLANA_RPC_URL is not set in .env file. Please add it.");
-        // Render children but with a clear error message in place of wallet functionality.
-        // This prevents a hard crash of the entire application.
+        // This provides a fallback and a clear error message if the prop is not passed.
+        // This can happen if the .env variable is not set on the server.
         return (
             <div>
                 <div className="flex h-screen w-full items-center justify-center p-4">

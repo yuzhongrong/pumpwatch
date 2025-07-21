@@ -18,12 +18,14 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const solanaRpcUrl = process.env.NEXT_PUBLIC_SOLANA_RPC_URL;
+
   return (
     <html lang="en" className="dark" suppressHydrationWarning>
       <head>
       </head>
       <body className={`${inter.variable} font-sans antialiased`}>
-        <WalletContextProvider>
+        <WalletContextProvider rpcUrl={solanaRpcUrl}>
           <SidebarProvider>
             {children}
           </SidebarProvider>
