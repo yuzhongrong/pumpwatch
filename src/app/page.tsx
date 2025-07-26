@@ -6,13 +6,18 @@ import { TokenCard, TokenCardSkeleton } from '@/components/token-card';
 import { TokenData } from '@/lib/data';
 import { Sidebar, SidebarContent, SidebarHeader, SidebarInset, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarRail } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
-import { Flame, Sparkles, Bell, Droplets, Users, RefreshCw, ShoppingCart, ShieldCheck, Eye, AlertCircle } from 'lucide-react';
+import { Flame, Sparkles, Bell, Droplets, Users, RefreshCw, ShoppingCart, ShieldCheck, Eye, AlertCircle, Search, Loader2, Info, List, Wallet } from 'lucide-react';
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { NotificationSettings } from '@/components/notification-settings';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
+import { Input } from '@/components/ui/input';
+import { useConnection, useWallet } from '@solana/wallet-adapter-react';
+// import { DLMM, LbPair, Position } from '@meteora-ag/dlmm';
+// import { PublicKey } from '@solana/web3.js';
+// import { BN } from '@project-serum/anchor';
 
 type MenuKey = 'hot' | 'notifications' | 'liquidity' | 'community';
 type SuggestionType = '买入' | '保守买入' | '观望';
@@ -63,38 +68,59 @@ const suggestionConfig: Record<SuggestionType, { title: string; icon: React.Elem
 };
 
 
-function LiquidityMiningPlaceholder() {
+function LiquidityMiningManager() {
+  const { connected } = useWallet();
+
+  if (!connected) {
     return (
-        <Card className="w-full">
-            <CardHeader>
-                <CardTitle>流动性挖矿管理 (Meteora)</CardTitle>
-                <CardDescription>管理您在 Meteora.ag 上的 DLMM 流动性头寸。</CardDescription>
-            </CardHeader>
-            <CardContent>
-                <Alert>
-                    <AlertCircle className="h-4 w-4" />
-                    <AlertTitle>功能开发中</AlertTitle>
-                    <AlertDescription>
-                        此高级功能正在积极开发中。由于需要与 Meteora 的链上程序进行复杂的交互并确保资金安全，我们正在谨慎构建。
-                        <br /><br />
-                        未来的版本将允许您：
-                        <ul className="list-disc pl-5 mt-2 space-y-1">
-                            <li>输入池子地址或连接钱包，自动发现您的 DLMM 头寸。</li>
-                            <li>查看每个头寸的实时状态、价格范围和未领取的费用。</li>
-                            <li>提供一键收取收益和调整价格范围的便捷操作。</li>
-                        </ul>
-                    </AlertDescription>
-                </Alert>
-            </CardContent>
-        </Card>
-    );
+     <Card className="w-full">
+       <CardHeader>
+           <CardTitle>流动性挖矿管理</CardTitle>
+           <CardDescription>连接您的钱包以管理您的 Meteora DLMM 头寸。</CardDescription>
+       </CardHeader>
+       <CardContent>
+         <div className="flex flex-col items-center justify-center h-48 text-center bg-muted/50 rounded-lg border border-dashed">
+           <Wallet className="h-12 w-12 text-muted-foreground mb-4" />
+           <p className="text-lg font-semibold text-foreground">未连接钱包</p>
+           <p className="text-muted-foreground mt-2 text-sm">请先连接您的钱包以查询和管理流动性。</p>
+         </div>
+       </CardContent>
+     </Card>
+   );
+  }
+
+  return (
+    <Card className="w-full">
+      <CardHeader>
+        <CardTitle>流动性挖矿管理 (Meteora DLMM)</CardTitle>
+        <CardDescription>查询和管理您的流动性头寸。</CardDescription>
+      </CardHeader>
+      <CardContent>
+         <Alert>
+            <Info className="h-4 w-4" />
+            <AlertTitle>功能开发中</AlertTitle>
+            <AlertDescription>
+                此功能正在积极开发中。由于需要与 Meteora 链上程序进行复杂的交互并确保钱包安全，我们正在谨慎地进行集成。
+                <br/><br/>
+                <span className="font-semibold">未来将支持:</span>
+                <ul className="list-disc pl-5 mt-2 space-y-1">
+                    <li>连接钱包后，输入池子地址查询您的流动性头寸。</li>
+                    <li>查看头寸的实时状态、价格范围和未领取的费用。</li>
+                    <li>一键收取累积的交易费。</li>
+                    <li>一键调整您的流动性范围以适应市场变化。</li>
+                </ul>
+            </AlertDescription>
+        </Alert>
+      </CardContent>
+    </Card>
+  );
 }
 
 
 function PageContent({ onRefresh, isRefreshing, countdown, groupedTokens, activeMenu }: { onRefresh: () => void, isRefreshing: boolean, countdown: number, groupedTokens: Record<SuggestionType, TokenData[]>, activeMenu: MenuKey }) {
   const hasHotTokens = Object.values(groupedTokens).some(group => group.length > 0);
   const { title } = menuConfig[activeMenu];
-
+  
   const renderContent = () => {
     switch(activeMenu) {
       case 'hot':
@@ -128,7 +154,7 @@ function PageContent({ onRefresh, isRefreshing, countdown, groupedTokens, active
       case 'notifications':
         return <NotificationSettings />;
       case 'liquidity':
-        return <LiquidityMiningPlaceholder />;
+        return <LiquidityMiningManager />;
       case 'community':
          return (
            <div className="flex flex-col items-center justify-center h-64 text-center bg-card rounded-lg border border-dashed">
