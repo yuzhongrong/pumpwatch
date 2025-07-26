@@ -6,13 +6,15 @@ import { TokenCard, TokenCardSkeleton } from '@/components/token-card';
 import { TokenData } from '@/lib/data';
 import { Sidebar, SidebarContent, SidebarHeader, SidebarInset, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarRail } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
-import { Flame, Sparkles, Bell, Star, Users, RefreshCw, ShoppingCart, ShieldCheck, Eye } from 'lucide-react';
+import { Flame, Sparkles, Bell, Droplets, Users, RefreshCw, ShoppingCart, ShieldCheck, Eye, AlertCircle } from 'lucide-react';
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { NotificationSettings } from '@/components/notification-settings';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 
-type MenuKey = 'hot' | 'notifications' | 'watchlist' | 'community';
+type MenuKey = 'hot' | 'notifications' | 'liquidity' | 'community';
 type SuggestionType = '买入' | '保守买入' | '观望';
 
 const REFRESH_INTERVAL = 60; // 60 seconds
@@ -28,10 +30,10 @@ const menuConfig: Record<MenuKey, { title: string; icon: React.ElementType, labe
     icon: Bell,
     label: '通知'
   },
-  watchlist: {
-    title: '我的关注',
-    icon: Star,
-    label: '我的关注'
+  liquidity: {
+    title: '流动性挖矿',
+    icon: Droplets,
+    label: '流动性挖矿'
   },
   community: {
     title: '社区',
@@ -59,6 +61,34 @@ const suggestionConfig: Record<SuggestionType, { title: string; icon: React.Elem
     '保守买入': { title: '保守买入', icon: ShieldCheck },
     '观望': { title: '观望', icon: Eye }
 };
+
+
+function LiquidityMiningPlaceholder() {
+    return (
+        <Card className="w-full">
+            <CardHeader>
+                <CardTitle>流动性挖矿管理 (Meteora)</CardTitle>
+                <CardDescription>管理您在 Meteora.ag 上的 DLMM 流动性头寸。</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <Alert>
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertTitle>功能开发中</AlertTitle>
+                    <AlertDescription>
+                        此高级功能正在积极开发中。由于需要与 Meteora 的链上程序进行复杂的交互并确保资金安全，我们正在谨慎构建。
+                        <br /><br />
+                        未来的版本将允许您：
+                        <ul className="list-disc pl-5 mt-2 space-y-1">
+                            <li>输入池子地址或连接钱包，自动发现您的 DLMM 头寸。</li>
+                            <li>查看每个头寸的实时状态、价格范围和未领取的费用。</li>
+                            <li>提供一键收取收益和调整价格范围的便捷操作。</li>
+                        </ul>
+                    </AlertDescription>
+                </Alert>
+            </CardContent>
+        </Card>
+    );
+}
 
 
 function PageContent({ onRefresh, isRefreshing, countdown, groupedTokens, activeMenu }: { onRefresh: () => void, isRefreshing: boolean, countdown: number, groupedTokens: Record<SuggestionType, TokenData[]>, activeMenu: MenuKey }) {
@@ -97,12 +127,13 @@ function PageContent({ onRefresh, isRefreshing, countdown, groupedTokens, active
         );
       case 'notifications':
         return <NotificationSettings />;
-      case 'watchlist':
+      case 'liquidity':
+        return <LiquidityMiningPlaceholder />;
       case 'community':
          return (
            <div className="flex flex-col items-center justify-center h-64 text-center bg-card rounded-lg border border-dashed">
-            <p className="text-lg font-semibold text-foreground">列表为空</p>
-            <p className="text-muted-foreground mt-2">这里还没有任何代币。</p>
+            <p className="text-lg font-semibold text-foreground">功能开发中</p>
+            <p className="text-muted-foreground mt-2">社区功能即将推出，敬请期待。</p>
           </div>
         );
       default:
