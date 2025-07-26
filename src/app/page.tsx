@@ -70,6 +70,16 @@ const suggestionConfig: Record<SuggestionType, { title: string; icon: React.Elem
 
 function LiquidityMiningManager() {
   const { connected } = useWallet();
+  const [poolAddress, setPoolAddress] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [positions, setPositions] = useState<any[]>([]); // Placeholder for position data
+
+  const handleQuery = () => {
+    if (!poolAddress) return;
+    // Placeholder for actual query logic
+    console.log("Querying positions for pool:", poolAddress);
+  };
+
 
   if (!connected) {
     return (
@@ -93,24 +103,47 @@ function LiquidityMiningManager() {
     <Card className="w-full">
       <CardHeader>
         <CardTitle>流动性挖矿管理 (Meteora DLMM)</CardTitle>
-        <CardDescription>查询和管理您的流动性头寸。</CardDescription>
+        <CardDescription>输入池子地址查询您的流动性头寸。</CardDescription>
       </CardHeader>
-      <CardContent>
-         <Alert>
-            <Info className="h-4 w-4" />
-            <AlertTitle>功能开发中</AlertTitle>
-            <AlertDescription>
-                此功能正在积极开发中。由于需要与 Meteora 链上程序进行复杂的交互并确保钱包安全，我们正在谨慎地进行集成。
-                <br/><br/>
-                <span className="font-semibold">未来将支持:</span>
-                <ul className="list-disc pl-5 mt-2 space-y-1">
-                    <li>连接钱包后，输入池子地址查询您的流动性头寸。</li>
-                    <li>查看头寸的实时状态、价格范围和未领取的费用。</li>
-                    <li>一键收取累积的交易费。</li>
-                    <li>一键调整您的流动性范围以适应市场变化。</li>
-                </ul>
-            </AlertDescription>
-        </Alert>
+      <CardContent className="space-y-6">
+        <div className="flex items-end gap-2">
+            <div className="flex-grow">
+                <label htmlFor="pool-address" className="text-sm font-medium mb-2 block">池子地址 (Pool Address)</label>
+                <Input 
+                    id="pool-address"
+                    placeholder="请输入Meteora DLMM池子地址"
+                    value={poolAddress}
+                    onChange={(e) => setPoolAddress(e.target.value)}
+                />
+            </div>
+            <Button onClick={handleQuery} disabled={isLoading || !poolAddress}>
+                {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Search className="mr-2 h-4 w-4" />}
+                查询头寸
+            </Button>
+        </div>
+        
+        <div className="space-y-4">
+             <h3 className="text-lg font-semibold">我的头寸</h3>
+             <Alert>
+                <Info className="h-4 w-4" />
+                <AlertTitle>功能开发中</AlertTitle>
+                <AlertDescription>
+                    查询和展示流动性头寸的功能正在积极开发中。由于需要集成Meteora SDK并解决复杂的依赖问题，此部分功能暂不可用。我们将在依赖问题解决后第一时间上线此功能。
+                </AlertDescription>
+            </Alert>
+             {/* 
+                This is where the position data would be rendered. Example structure:
+                {positions.length > 0 ? (
+                    <div className="space-y-2">
+                        {positions.map(pos => <div key={pos.id}>...Position Card...</div>)}
+                    </div>
+                ) : (
+                    <div className="text-center text-muted-foreground py-8">
+                        <p>在此池子中未找到您的流动性头寸。</p>
+                    </div>
+                )}
+            */}
+        </div>
       </CardContent>
     </Card>
   );
