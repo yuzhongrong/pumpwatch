@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { Header } from '@/components/header';
@@ -16,7 +17,7 @@ import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { Input } from '@/components/ui/input';
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
 import { PublicKey } from '@solana/web3.js';
-import { BN, Program, AnchorProvider } from '@project-serum/anchor';
+import { Program, AnchorProvider } from '@project-serum/anchor';
 import { LbPair } from '@/lib/meteora';
 
 type MenuKey = 'hot' | 'notifications' | 'liquidity' | 'community';
@@ -83,12 +84,19 @@ function LiquidityMiningManager() {
   const { toast } = useToast();
 
   const provider = useMemo(() => {
-    if (connected && wallet) {
-      return new AnchorProvider(connection, wallet.adapter as any, {
+    if (connected && wallet && wallet.adapter) {
+      // The wallet adapter might not be an Anchor-compatible wallet.
+      // We create a basic wallet structure that AnchorProvider can use.
+      const anchorWallet = {
+        publicKey: publicKey!,
+        signAllTransactions: wallet.adapter.signAllTransactions!,
+        signTransaction: wallet.adapter.signTransaction!,
+      };
+      return new AnchorProvider(connection, anchorWallet, {
         commitment: 'confirmed',
       });
     }
-  }, [connection, wallet, connected]);
+  }, [connection, wallet, connected, publicKey]);
 
 
   const handleQuery = async () => {
@@ -104,15 +112,13 @@ function LiquidityMiningManager() {
       const lbPair = await LbPair.create(provider, new PublicKey(poolAddress));
       const userPositions = await lbPair.getPositions(publicKey);
 
-      const detailedPositions = await Promise.all(
-        userPositions.map(async (pos) => {
+      const detailedPositions = userPositions.map(pos => {
           return {
             publicKey: pos.publicKey,
             lowerBinId: pos.lowerBinId,
             upperBinId: pos.upperBinId
           };
-        })
-      );
+        });
       
       setPositions(detailedPositions);
 

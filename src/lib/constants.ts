@@ -11,14 +11,62 @@ export const METEORA_DLMM_IDL = {
   instructions: [],
   accounts: [
     {
+      name: "LbPair",
+      type: {
+        kind: "struct",
+        fields: [
+          {
+            name: "parameters",
+            type: {
+              defined: "PairParameters",
+            },
+          },
+        ],
+      },
+    },
+    {
       name: "Position",
       type: {
         kind: "struct",
         fields: [
-          { name: "owner", type: "publicKey" },
-          { name: "lbPair", type: "publicKey" },
-          { name: "lowerBinId", type: "i32" },
-          { name: "upperBinId", type: "i32" },
+          {
+            name: "lbPair",
+            type: "publicKey",
+          },
+          {
+            name: "owner",
+            type: "publicKey",
+          },
+          {
+            name: "lowerBinId",
+            type: "i32",
+          },
+          {
+            name: "upperBinId",
+            type: "i32",
+          },
+        ],
+      },
+    },
+  ],
+  types: [
+    {
+      name: "PairParameters",
+      type: {
+        kind: "struct",
+        fields: [
+          {
+            name: "tokenXMint",
+            type: "publicKey",
+          },
+          {
+            name: "tokenYMint",
+            type: "publicKey",
+          },
+          {
+            name: "binStep",
+            type: "u16",
+          },
         ],
       },
     },
