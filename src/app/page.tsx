@@ -72,12 +72,20 @@ function LiquidityMiningManager() {
   const { connected } = useWallet();
   const [poolAddress, setPoolAddress] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [showInfo, setShowInfo] = useState(false);
   const [positions, setPositions] = useState<any[]>([]); // Placeholder for position data
 
   const handleQuery = () => {
     if (!poolAddress) return;
-    // Placeholder for actual query logic
-    console.log("Querying positions for pool:", poolAddress);
+    setIsLoading(true);
+    setShowInfo(false);
+    // Simulate API call
+    setTimeout(() => {
+        // Placeholder for actual query logic
+        console.log("Querying positions for pool:", poolAddress);
+        setIsLoading(false);
+        setShowInfo(true);
+    }, 1000)
   };
 
 
@@ -135,13 +143,15 @@ function LiquidityMiningManager() {
         
         <div className="space-y-4">
              <h3 className="text-lg font-semibold">我的头寸</h3>
-             <Alert>
-                <Info className="h-4 w-4" />
-                <AlertTitle>功能开发中</AlertTitle>
-                <AlertDescription>
-                    查询和展示流动性头寸的功能正在积极开发中。由于需要集成Meteora SDK并解决复杂的依赖问题，此部分功能暂不可用。我们将在依赖问题解决后第一时间上线此功能。
-                </AlertDescription>
-            </Alert>
+             {showInfo && (
+                <Alert>
+                    <Info className="h-4 w-4" />
+                    <AlertTitle>功能开发中</AlertTitle>
+                    <AlertDescription>
+                        查询和展示流动性头寸的功能正在积极开发中。由于需要集成Meteora SDK并解决复杂的依赖问题，此部分功能暂不可用。我们将在依赖问题解决后第一时间上线此功能。
+                    </AlertDescription>
+                </Alert>
+             )}
              {/* 
                 This is where the position data would be rendered. Example structure:
                 {positions.length > 0 ? (
