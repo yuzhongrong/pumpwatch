@@ -3,10 +3,12 @@ import { AnchorProvider, Idl, Program } from "@project-serum/anchor";
 import { Connection, PublicKey } from "@solana/web3.js";
 import { DLMM_PROGRAM_ID, METEORA_DLMM_IDL } from "./constants";
 
-// A simplified representation of a position account
+// A simplified representation of a position account from the chain
 interface PositionAccount {
     publicKey: PublicKey;
     account: {
+        lbPair: PublicKey; // The pool this position belongs to
+        owner: PublicKey;
         lowerBinId: number;
         upperBinId: number;
     };
@@ -26,7 +28,6 @@ export class LbPair {
      * @returns A new instance of LbPair.
      */
     public static async create(provider: AnchorProvider, poolAddress: PublicKey): Promise<LbPair> {
-        // We need to associate the program with the provider's connection.
         const program = new Program(
             METEORA_DLMM_IDL as Idl,
             DLMM_PROGRAM_ID,
@@ -41,28 +42,26 @@ export class LbPair {
      * @returns An array of Position objects.
      */
     public async getPositions(owner: PublicKey): Promise<Position[]> {
-        // This fetches all accounts of the 'position' type from the DLMM program.
-        const positionStates = (await this.program.account.position.all([
+        // This fetches all accounts of the 'position' type from the DLMM program
+        // that are owned by the specified owner wallet.
+        const allPositionStatesForOwner = (await this.program.account.position.all([
             // Filter 1: The owner of the position must match the provided owner's public key.
-            // The offset is 40 bytes: 8 bytes for discriminator + 32 for lbPair public key.
+            // The offset is 40 bytes: 8 for discriminator + 32 for lbPair public key.
             {
                 memcmp: {
                     offset: 40, 
                     bytes: owner.toBase58(),
                 },
             },
-            // Filter 2: The position must belong to this specific LbPair (pool).
-            // The offset is 8 bytes for the account discriminator.
-            {
-                memcmp: {
-                    offset: 8,
-                    bytes: this.publicKey.toBase58(),
-                },
-            }
         ])) as PositionAccount[];
 
-        // Map the raw account data to our simplified Position class.
-        return positionStates.map(pos => {
+        // Filter the results in code to ensure the position belongs to the specific pool (lbPair) we are querying.
+        const positionsForPool = allPositionStatesForOwner.filter(
+            (pos) => pos.account.lbPair.equals(this.publicKey)
+        );
+
+        // Map the filtered account data to our simplified Position class.
+        return positionsForPool.map(pos => {
             return new Position(
                 pos.publicKey,
                 pos.account.lowerBinId,
