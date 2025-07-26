@@ -15,10 +15,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { Input } from '@/components/ui/input';
-import { useConnection, useWallet } from '@solana/wallet-adapter-react';
-import { PublicKey } from '@solana/web3.js';
-import { Program, AnchorProvider } from '@project-serum/anchor';
-import { LbPair } from '@/lib/meteora';
+import { useWallet } from '@solana/wallet-adapter-react';
 
 type MenuKey = 'hot' | 'notifications' | 'liquidity' | 'community';
 type SuggestionType = '买入' | '保守买入' | '观望';
@@ -69,38 +66,22 @@ const suggestionConfig: Record<SuggestionType, { title: string; icon: React.Elem
 };
 
 interface PositionInfo {
-  publicKey: PublicKey;
-  lowerBinId: number;
-  upperBinId: number;
+  pool_address: string;
+  lower_price: string;
+  upper_price: string;
+  position_address: string;
 }
 
 function LiquidityMiningManager() {
-  const { wallet, connected, publicKey } = useWallet();
-  const { connection } = useConnection();
+  const { connected, publicKey } = useWallet();
   const [poolAddress, setPoolAddress] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [positions, setPositions] = useState<PositionInfo[]>([]);
   const [searched, setSearched] = useState(false);
   const { toast } = useToast();
 
-  const provider = useMemo(() => {
-    if (connected && wallet && wallet.adapter) {
-      // The wallet adapter might not be an Anchor-compatible wallet.
-      // We create a basic wallet structure that AnchorProvider can use.
-      const anchorWallet = {
-        publicKey: publicKey!,
-        signAllTransactions: wallet.adapter.signAllTransactions!,
-        signTransaction: wallet.adapter.signTransaction!,
-      };
-      return new AnchorProvider(connection, anchorWallet, {
-        commitment: 'confirmed',
-      });
-    }
-  }, [connection, wallet, connected, publicKey]);
-
-
   const handleQuery = async () => {
-    if (!provider || !publicKey || !poolAddress) {
+    if (!publicKey || !poolAddress) {
       toast({ title: "错误", description: "请先连接钱包并输入池子地址", variant: "destructive" });
       return;
     }
@@ -109,31 +90,29 @@ function LiquidityMiningManager() {
     setPositions([]);
 
     try {
-      const lbPair = await LbPair.create(provider, new PublicKey(poolAddress));
-      const userPositions = await lbPair.getPositions(publicKey);
-
-      const detailedPositions = userPositions.map(pos => {
-          return {
-            publicKey: pos.publicKey,
-            lowerBinId: pos.lowerBinId,
-            upperBinId: pos.upperBinId
-          };
-        });
+      const response = await fetch(`https://dlmm-api.meteora.ag/v1/wallets/${publicKey.toBase58()}/positions`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch data from Meteora API');
+      }
+      const allPositions = await response.json();
       
-      setPositions(detailedPositions);
+      const filteredPositions = allPositions.filter(
+        (pos: PositionInfo) => pos.pool_address.toLowerCase() === poolAddress.toLowerCase()
+      );
+
+      setPositions(filteredPositions);
 
     } catch (error) {
       console.error("Failed to query positions:", error);
       toast({
         title: "查询失败",
-        description: "无法获取头寸信息。请检查池子地址是否正确，或稍后再试。",
+        description: "无法获取头寸信息。请检查池子地址或钱包地址是否正确，或稍后再试。",
         variant: "destructive"
       });
     } finally {
       setIsLoading(false);
     }
   };
-
 
   if (!connected) {
     return (
@@ -198,12 +177,12 @@ function LiquidityMiningManager() {
                 <div className="space-y-3">
                     {positions.map((pos, index) => (
                       <Card key={index} className="bg-muted/50">
-                        <CardContent className="p-4">
+                        <CardContent className="p-4 space-y-2">
                           <p className="text-sm font-medium text-foreground">头寸 #{index + 1}</p>
-                          <p className="text-xs text-muted-foreground font-mono break-all mb-2">{pos.publicKey.toBase58()}</p>
+                          <p className="text-xs text-muted-foreground font-mono break-all">地址: {pos.position_address}</p>
                           <div className="flex justify-between items-center text-sm">
-                              <span>价格范围 (Bin ID):</span>
-                              <span className="font-mono bg-background px-2 py-1 rounded-md">{pos.lowerBinId} - {pos.upperBinId}</span>
+                              <span>价格范围:</span>
+                              <span className="font-mono bg-background px-2 py-1 rounded-md">{parseFloat(pos.lower_price).toPrecision(6)} - {parseFloat(pos.upper_price).toPrecision(6)}</span>
                           </div>
                         </CardContent>
                       </Card>
