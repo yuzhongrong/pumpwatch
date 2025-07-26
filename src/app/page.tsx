@@ -15,9 +15,9 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { Input } from '@/components/ui/input';
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
-// import { DLMM, LbPair, Position } from '@meteora-ag/dlmm';
-// import { PublicKey } from '@solana/web3.js';
-// import { BN } from '@project-serum/anchor';
+import { PublicKey } from '@solana/web3.js';
+import { BN, Program, AnchorProvider } from '@project-serum/anchor';
+import { LbPair } from '@/lib/meteora';
 
 type MenuKey = 'hot' | 'notifications' | 'liquidity' | 'community';
 type SuggestionType = '买入' | '保守买入' | '观望';
@@ -67,25 +67,65 @@ const suggestionConfig: Record<SuggestionType, { title: string; icon: React.Elem
     '观望': { title: '观望', icon: Eye }
 };
 
+interface PositionInfo {
+  publicKey: PublicKey;
+  lowerBinId: number;
+  upperBinId: number;
+}
 
 function LiquidityMiningManager() {
-  const { connected } = useWallet();
+  const { wallet, connected, publicKey } = useWallet();
+  const { connection } = useConnection();
   const [poolAddress, setPoolAddress] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [showInfo, setShowInfo] = useState(false);
-  const [positions, setPositions] = useState<any[]>([]); // Placeholder for position data
+  const [positions, setPositions] = useState<PositionInfo[]>([]);
+  const [searched, setSearched] = useState(false);
+  const { toast } = useToast();
 
-  const handleQuery = () => {
-    if (!poolAddress) return;
+  const provider = useMemo(() => {
+    if (connected && wallet) {
+      return new AnchorProvider(connection, wallet.adapter as any, {
+        commitment: 'confirmed',
+      });
+    }
+  }, [connection, wallet, connected]);
+
+
+  const handleQuery = async () => {
+    if (!provider || !publicKey || !poolAddress) {
+      toast({ title: "错误", description: "请先连接钱包并输入池子地址", variant: "destructive" });
+      return;
+    }
     setIsLoading(true);
-    setShowInfo(false);
-    // Simulate API call
-    setTimeout(() => {
-        // Placeholder for actual query logic
-        console.log("Querying positions for pool:", poolAddress);
-        setIsLoading(false);
-        setShowInfo(true);
-    }, 1000)
+    setSearched(true);
+    setPositions([]);
+
+    try {
+      const lbPair = await LbPair.create(provider, new PublicKey(poolAddress));
+      const userPositions = await lbPair.getPositions(publicKey);
+
+      const detailedPositions = await Promise.all(
+        userPositions.map(async (pos) => {
+          return {
+            publicKey: pos.publicKey,
+            lowerBinId: pos.lowerBinId,
+            upperBinId: pos.upperBinId
+          };
+        })
+      );
+      
+      setPositions(detailedPositions);
+
+    } catch (error) {
+      console.error("Failed to query positions:", error);
+      toast({
+        title: "查询失败",
+        description: "无法获取头寸信息。请检查池子地址是否正确，或稍后再试。",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
 
@@ -143,27 +183,35 @@ function LiquidityMiningManager() {
         
         <div className="space-y-4">
              <h3 className="text-lg font-semibold">我的头寸</h3>
-             {showInfo && (
-                <Alert>
-                    <Info className="h-4 w-4" />
-                    <AlertTitle>功能开发中</AlertTitle>
-                    <AlertDescription>
-                        查询和展示流动性头寸的功能正在积极开发中。由于需要集成Meteora SDK并解决复杂的依赖问题，此部分功能暂不可用。我们将在依赖问题解决后第一时间上线此功能。
-                    </AlertDescription>
-                </Alert>
+             {isLoading ? (
+                <div className="space-y-3">
+                  <Skeleton className="h-20 w-full" />
+                  <Skeleton className="h-20 w-full" />
+                </div>
+             ) : searched && positions.length > 0 ? (
+                <div className="space-y-3">
+                    {positions.map((pos, index) => (
+                      <Card key={index} className="bg-muted/50">
+                        <CardContent className="p-4">
+                          <p className="text-sm font-medium text-foreground">头寸 #{index + 1}</p>
+                          <p className="text-xs text-muted-foreground font-mono break-all mb-2">{pos.publicKey.toBase58()}</p>
+                          <div className="flex justify-between items-center text-sm">
+                              <span>价格范围 (Bin ID):</span>
+                              <span className="font-mono bg-background px-2 py-1 rounded-md">{pos.lowerBinId} - {pos.upperBinId}</span>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                </div>
+             ) : searched && positions.length === 0 ? (
+                <div className="text-center text-muted-foreground py-8 border border-dashed rounded-lg">
+                    <p>在此池子中未找到您的流动性头寸。</p>
+                </div>
+             ) : (
+                <div className="text-center text-muted-foreground py-8 border border-dashed rounded-lg">
+                    <p>请输入池子地址并点击查询。</p>
+                </div>
              )}
-             {/* 
-                This is where the position data would be rendered. Example structure:
-                {positions.length > 0 ? (
-                    <div className="space-y-2">
-                        {positions.map(pos => <div key={pos.id}>...Position Card...</div>)}
-                    </div>
-                ) : (
-                    <div className="text-center text-muted-foreground py-8">
-                        <p>在此池子中未找到您的流动性头寸。</p>
-                    </div>
-                )}
-            */}
         </div>
       </CardContent>
     </Card>
