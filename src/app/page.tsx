@@ -6,7 +6,7 @@ import { TokenCard, TokenCardSkeleton } from '@/components/token-card';
 import { TokenData } from '@/lib/data';
 import { Sidebar, SidebarContent, SidebarHeader, SidebarInset, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarRail } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
-import { Flame, Sparkles, Bell, Droplets, Users, RefreshCw, ShoppingCart, ShieldCheck, Eye, AlertCircle, Search, Loader2, Info, List, Wallet } from 'lucide-react';
+import { Flame, Sparkles, Bell, Droplets, Users, RefreshCw, ShoppingCart, ShieldCheck, Eye, AlertCircle, Search, Loader2, Info, List, Wallet, ExternalLink } from 'lucide-react';
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { NotificationSettings } from '@/components/notification-settings';
@@ -107,16 +107,27 @@ function LiquidityMiningManager() {
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="flex items-end gap-2">
-            <div className="flex-grow">
-                <label htmlFor="pool-address" className="text-sm font-medium mb-2 block">池子地址 (Pool Address)</label>
+            <div className="flex-grow space-y-2">
+                <label htmlFor="pool-address" className="text-sm font-medium">池子地址 (Pool Address)</label>
                 <Input 
                     id="pool-address"
                     placeholder="请输入Meteora DLMM池子地址"
                     value={poolAddress}
                     onChange={(e) => setPoolAddress(e.target.value)}
                 />
+                 <p className="text-xs text-muted-foreground flex items-center gap-1.5">
+                    不知道地址？ 
+                    <a 
+                        href="https://app.meteora.ag/dlmm" 
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        className="text-primary/90 hover:text-primary inline-flex items-center gap-1 underline-offset-4 hover:underline"
+                    >
+                        去 Meteora 寻找池子 <ExternalLink className="h-3 w-3" />
+                    </a>
+                </p>
             </div>
-            <Button onClick={handleQuery} disabled={isLoading || !poolAddress}>
+            <Button onClick={handleQuery} disabled={isLoading || !poolAddress} className="self-end">
                 {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Search className="mr-2 h-4 w-4" />}
                 查询头寸
             </Button>
