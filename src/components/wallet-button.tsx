@@ -15,15 +15,12 @@ import {
   DropdownMenuLabel
 } from './ui/dropdown-menu';
 import { Check, Copy, LogOut, Wallet as WalletIcon, ChevronDown } from 'lucide-react';
+import { WalletConnectButton, WalletModalButton } from '@solana/wallet-adapter-react-ui';
 
 export function WalletButton() {
   const { wallet, publicKey, disconnect, connecting } = useWallet();
   const { setVisible } = useWalletModal();
   const [isCopied, setIsCopied] = useState(false);
-
-  const handleConnect = useCallback(() => {
-    setVisible(true);
-  }, [setVisible]);
 
   const handleDisconnect = useCallback(() => {
     disconnect();
@@ -39,9 +36,9 @@ export function WalletButton() {
 
   if (!wallet || !publicKey) {
     return (
-      <Button onClick={handleConnect} disabled={connecting}>
-        {connecting ? '正在连接...' : '连接钱包'}
-      </Button>
+        <WalletModalButton>
+            {connecting ? '正在连接...' : '连接钱包'}
+        </WalletModalButton>
     );
   }
 
@@ -65,10 +62,10 @@ export function WalletButton() {
             {isCopied ? <Check className="mr-2 h-4 w-4" /> : <Copy className="mr-2 h-4 w-4" />}
             <span>{isCopied ? '已复制!' : '复制地址'}</span>
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={handleConnect}>
+          <WalletModalButton>
             <WalletIcon className="mr-2 h-4 w-4" />
             <span>切换钱包</span>
-          </DropdownMenuItem>
+          </WalletModalButton>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={handleDisconnect}>

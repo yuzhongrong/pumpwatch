@@ -3,33 +3,32 @@
 
 import React, { useMemo } from 'react';
 import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react';
-import { PhantomWalletAdapter } from '@solana/wallet-adapter-phantom';
 import { WalletModalProvider } from '@solana/wallet-adapter-react-ui';
+import { WalletAdapterNetwork } from '@solana/wallet-adapter-base';
+import {
+    PhantomWalletAdapter,
+} from '@solana/wallet-adapter-phantom';
+import { clusterApiUrl } from '@solana/web3.js';
 
-const wallets = [
-    new PhantomWalletAdapter(),
-];
 
 export const WalletContextProvider = ({
     children,
 }: {
     children: React.ReactNode;
 }) => {
-    const endpoint = process.env.NEXT_PUBLIC_SOLANA_RPC_URL;
-    const memoizedWallets = useMemo(() => wallets, []);
+    const network = WalletAdapterNetwork.Devnet;
+    const endpoint = useMemo(() => clusterApiUrl(network), [network]);
 
-    if (!endpoint) {
-        // This part will now only log an error to the console if the variable is missing,
-        // preventing the app from crashing and showing a full-screen error.
-        // The wallet features will simply not work until the env var is correctly loaded.
-        console.error("Wallet Configuration Error: NEXT_PUBLIC_SOLANA_RPC_URL is not configured.");
-        // We render children anyway to not break the whole app layout
-        return <>{children}</>;
-    }
+    const wallets = useMemo(
+        () => [
+            new PhantomWalletAdapter(),
+        ],
+        [network]
+    );
 
     return (
         <ConnectionProvider endpoint={endpoint}>
-            <WalletProvider wallets={memoizedWallets}>
+            <WalletProvider wallets={wallets}>
                 <WalletModalProvider>{children}</WalletModalProvider>
             </WalletProvider>
         </ConnectionProvider>
