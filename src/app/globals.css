@@ -76,7 +76,7 @@
     --destructive-foreground: 0 0% 100%;
 
     --border: 220 13% 18%;
-    --input: 220 13% 18%;
+    --input: 220 13% 12%;
     --ring: 142 61% 55%;
 
     --chart-1: 142 61% 55%;
@@ -103,7 +103,7 @@
 }
 
 @layer components {
-  .wallet-adapter-button-trigger {
+  .wallet-adapter-button {
     @apply bg-primary text-primary-foreground hover:bg-primary/90;
   }
 }
