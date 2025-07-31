@@ -16,6 +16,7 @@ export const WalletContextProvider = ({
     children: React.ReactNode;
 }) => {
     const endpoint = process.env.NEXT_PUBLIC_SOLANA_RPC_URL;
+    const memoizedWallets = useMemo(() => wallets, []);
 
     if (!endpoint) {
         // This part will now only log an error to the console if the variable is missing,
@@ -25,8 +26,6 @@ export const WalletContextProvider = ({
         // We render children anyway to not break the whole app layout
         return <>{children}</>;
     }
-    
-    const memoizedWallets = useMemo(() => wallets, []);
 
     return (
         <ConnectionProvider endpoint={endpoint}>
