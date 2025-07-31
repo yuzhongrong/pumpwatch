@@ -30,7 +30,7 @@ export const WalletContextProvider = ({
 
     return (
         <ConnectionProvider endpoint={endpoint}>
-            <WalletProvider wallets={memoizedWallets} autoConnect>
+            <WalletProvider wallets={memoizedWallets}>
                 <WalletModalProvider>{children}</WalletModalProvider>
             </WalletProvider>
         </ConnectionProvider>
