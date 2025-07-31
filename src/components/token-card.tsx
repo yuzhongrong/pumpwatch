@@ -1,3 +1,4 @@
+
 'use client';
 
 import Image from 'next/image';
@@ -108,7 +109,7 @@ export function TokenCard({ token }: { token: TokenData }) {
   
   const SuggestionIcon = suggestion?.icon;
 
-  const chartData = token['rsi_200_5m']
+  const chartData = (token['rsi_200_5m'] || [])
     .map(d => ({ time: parseInt(d[0]), value: parseFloat(d[4]) }))
     .sort((a, b) => a.time - b.time);
 
