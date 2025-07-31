@@ -101,3 +101,9 @@
     @apply bg-background text-foreground;
   }
 }
+
+@layer components {
+  .wallet-adapter-button-trigger {
+    @apply bg-primary text-primary-foreground hover:bg-primary/90;
+  }
+}
