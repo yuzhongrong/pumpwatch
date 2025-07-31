@@ -5,6 +5,6 @@ import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 
 export function WalletButton() {
   return (
-    <WalletMultiButton />
+    <WalletMultiButton className="bg-primary text-primary-foreground hover:bg-primary/90" />
   );
 }
