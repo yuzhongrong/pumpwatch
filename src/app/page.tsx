@@ -7,15 +7,13 @@ import { TokenCard, TokenCardSkeleton } from '@/components/token-card';
 import { TokenData } from '@/lib/data';
 import { Sidebar, SidebarContent, SidebarHeader, SidebarInset, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarRail } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
-import { Flame, Sparkles, Bell, Droplets, Users, RefreshCw, ShoppingCart, ShieldCheck, Eye, AlertCircle, Search, Loader2, Info, List, Wallet, ExternalLink } from 'lucide-react';
+import { Flame, Sparkles, Bell, Droplets, Users, RefreshCw, ShoppingCart, ShieldCheck, Eye, AlertCircle } from 'lucide-react';
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { NotificationSettings } from '@/components/notification-settings';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
-import { Input } from '@/components/ui/input';
-import { useWallet } from '@solana/wallet-adapter-react';
 
 type MenuKey = 'hot' | 'notifications' | 'liquidity' | 'community';
 type SuggestionType = '买入' | '保守买入' | '观望';
@@ -65,140 +63,22 @@ const suggestionConfig: Record<SuggestionType, { title: string; icon: React.Elem
     '观望': { title: '观望', icon: Eye }
 };
 
-interface PositionInfo {
-  pool_address: string;
-  lower_price: string;
-  upper_price: string;
-  position_address: string;
-}
-
 function LiquidityMiningManager() {
-  const { connected, publicKey } = useWallet();
-  const [poolAddress, setPoolAddress] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [positions, setPositions] = useState<PositionInfo[]>([]);
-  const [searched, setSearched] = useState(false);
-  const { toast } = useToast();
-
-  const handleQuery = async () => {
-    if (!publicKey || !poolAddress) {
-      toast({ title: "错误", description: "请先连接钱包并输入池子地址", variant: "destructive" });
-      return;
-    }
-    setIsLoading(true);
-    setSearched(true);
-    setPositions([]);
-
-    try {
-      const response = await fetch(`https://dlmm-api.meteora.ag/v1/wallets/${publicKey.toBase58()}/positions`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch data from Meteora API');
-      }
-      const allPositions = await response.json();
-      
-      const filteredPositions = allPositions.filter(
-        (pos: PositionInfo) => pos.pool_address.toLowerCase() === poolAddress.toLowerCase()
-      );
-
-      setPositions(filteredPositions);
-
-    } catch (error) {
-      console.error("Failed to query positions:", error);
-      toast({
-        title: "查询失败",
-        description: "无法获取头寸信息。请检查池子地址或钱包地址是否正确，或稍后再试。",
-        variant: "destructive"
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  if (!connected) {
-    return (
-     <Card className="w-full">
-       <CardHeader>
-           <CardTitle>流动性挖矿管理</CardTitle>
-           <CardDescription>连接您的钱包以管理您的 Meteora DLMM 头寸。</CardDescription>
-       </CardHeader>
-       <CardContent>
-         <div className="flex flex-col items-center justify-center h-48 text-center bg-muted/50 rounded-lg border border-dashed">
-           <Wallet className="h-12 w-12 text-muted-foreground mb-4" />
-           <p className="text-lg font-semibold text-foreground">未连接钱包</p>
-           <p className="text-muted-foreground mt-2 text-sm">请先连接您的钱包以查询和管理流动性。</p>
-         </div>
-       </CardContent>
-     </Card>
-   );
-  }
-
   return (
     <Card className="w-full">
-      <CardHeader>
-        <CardTitle>流动性挖矿管理 (Meteora DLMM)</CardTitle>
-        <CardDescription>输入池子地址查询您的流动性头寸。</CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-6">
-        <div className="flex items-end gap-2">
-            <div className="flex-grow space-y-2">
-                <label htmlFor="pool-address" className="text-sm font-medium">池子地址 (Pool Address)</label>
-                <Input 
-                    id="pool-address"
-                    placeholder="请输入Meteora DLMM池子地址"
-                    value={poolAddress}
-                    onChange={(e) => setPoolAddress(e.target.value)}
-                />
-                 <p className="text-xs text-muted-foreground flex items-center gap-1.5">
-                    不知道地址？ 
-                    <a 
-                        href="https://app.meteora.ag/dlmm" 
-                        target="_blank" 
-                        rel="noopener noreferrer" 
-                        className="text-primary/90 hover:text-primary inline-flex items-center gap-1 underline-offset-4 hover:underline"
-                    >
-                        去 Meteora 寻找池子 <ExternalLink className="h-3 w-3" />
-                    </a>
-                </p>
-            </div>
-            <Button onClick={handleQuery} disabled={isLoading || !poolAddress} className="self-end">
-                {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Search className="mr-2 h-4 w-4" />}
-                查询头寸
-            </Button>
-        </div>
-        
-        <div className="space-y-4">
-             <h3 className="text-lg font-semibold">我的头寸</h3>
-             {isLoading ? (
-                <div className="space-y-3">
-                  <Skeleton className="h-20 w-full" />
-                  <Skeleton className="h-20 w-full" />
-                </div>
-             ) : searched && positions.length > 0 ? (
-                <div className="space-y-3">
-                    {positions.map((pos, index) => (
-                      <Card key={index} className="bg-muted/50">
-                        <CardContent className="p-4 space-y-2">
-                          <p className="text-sm font-medium text-foreground">头寸 #{index + 1}</p>
-                          <p className="text-xs text-muted-foreground font-mono break-all">地址: {pos.position_address}</p>
-                          <div className="flex justify-between items-center text-sm">
-                              <span>价格范围:</span>
-                              <span className="font-mono bg-background px-2 py-1 rounded-md">{parseFloat(pos.lower_price).toPrecision(6)} - {parseFloat(pos.upper_price).toPrecision(6)}</span>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))}
-                </div>
-             ) : searched && positions.length === 0 ? (
-                <div className="text-center text-muted-foreground py-8 border border-dashed rounded-lg">
-                    <p>在此池子中未找到您的流动性头寸。</p>
-                </div>
-             ) : (
-                <div className="text-center text-muted-foreground py-8 border border-dashed rounded-lg">
-                    <p>请输入池子地址并点击查询。</p>
-                </div>
-             )}
-        </div>
-      </CardContent>
+        <CardHeader>
+            <CardTitle>流动性挖矿</CardTitle>
+            <CardDescription>管理您在 Meteora DLMM 上的流动性头寸。</CardDescription>
+        </CardHeader>
+        <CardContent>
+            <Alert>
+                <AlertCircle className="h-4 w-4" />
+                <AlertTitle>功能开发中</AlertTitle>
+                <AlertDescription>
+                    查询和管理流动性头寸的功能即将推出，敬请期待。
+                </AlertDescription>
+            </Alert>
+        </CardContent>
     </Card>
   );
 }
