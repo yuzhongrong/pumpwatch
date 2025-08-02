@@ -29,13 +29,15 @@ export const WalletContextProvider = ({
     const endpoint = useMemo(() => clusterApiUrl(network), []);
 
     const onError = useCallback((error: WalletError) => {
-        console.error(error);
+        console.warn(error);
         // You can also display a toast notification here.
-        toast({
-            title: '钱包错误',
-            description: error.message,
-            variant: 'destructive',
-        });
+        if (error.message !== 'Wallet not selected') {
+            toast({
+                title: '钱包错误',
+                description: error.message,
+                variant: 'destructive',
+            });
+        }
     }, [toast]);
 
     return (
