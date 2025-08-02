@@ -32,9 +32,9 @@ const menuConfig: Record<MenuKey, { title: string; icon: React.ElementType, labe
     label: '通知'
   },
   liquidity: {
-    title: '流动性挖矿',
+    title: '夜晚挂机',
     icon: Droplets,
-    label: '流动性挖矿'
+    label: '夜晚挂机'
   },
   community: {
     title: '社区',
@@ -67,7 +67,7 @@ function LiquidityMiningManager() {
   return (
     <Card className="w-full">
         <CardHeader>
-            <CardTitle>流动性挖矿</CardTitle>
+            <CardTitle>夜晚挂机</CardTitle>
             <CardDescription>管理您在 Meteora DLMM 上的流动性头寸。</CardDescription>
         </CardHeader>
         <CardContent>
