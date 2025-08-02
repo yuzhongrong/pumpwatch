@@ -14,6 +14,7 @@ export type TokenData = {
     h24: number;
   };
   priceUsd: string;
+  current_price?: number;
   'rsi-1h': number;
   'rsi-5m': number;
   'rsi_200_1h': string[][];

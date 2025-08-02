@@ -18,7 +18,7 @@ const formatNumber = (num: number) => {
 };
 
 const formatPrice = (price: number): string => {
-  if (isNaN(price)) {
+  if (isNaN(price) || price === null) {
     return '$...';
   }
   if (price > 0 && price < 0.000001) {
@@ -113,7 +113,7 @@ export function TokenCard({ token }: { token: TokenData }) {
     .map(d => ({ time: parseInt(d[0]), value: parseFloat(d[4]) }))
     .sort((a, b) => a.time - b.time);
 
-  const latestPrice = chartData.length > 0 ? chartData[chartData.length - 1].value : parseFloat(token.priceUsd);
+  const latestPrice = token.current_price ?? (chartData.length > 0 ? chartData[chartData.length - 1].value : parseFloat(token.priceUsd));
 
   return (
     <Card className="flex flex-col transition-all hover:shadow-lg hover:-translate-y-1 overflow-hidden bg-card border-border/60 hover:border-primary/50">
