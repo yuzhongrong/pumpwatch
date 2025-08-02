@@ -75,7 +75,7 @@ function LiquidityMiningManager() {
                 <AlertCircle className="h-4 w-4" />
                 <AlertTitle>功能开发中</AlertTitle>
                 <AlertDescription>
-                    查询和管理流动性头寸的功能即将推出，敬请期待。
+                    功能即将推出，敬请期待
                 </AlertDescription>
             </Alert>
         </CardContent>
