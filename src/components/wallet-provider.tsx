@@ -12,6 +12,13 @@ import { SolflareWalletAdapter } from '@solana/wallet-adapter-solflare';
 import { clusterApiUrl } from '@solana/web3.js';
 import { useToast } from '@/hooks/use-toast';
 
+const network = WalletAdapterNetwork.Devnet;
+
+// Define wallets outside the component to prevent re-instantiation on every render.
+const wallets = [
+    new PhantomWalletAdapter(),
+    new SolflareWalletAdapter({ network }),
+];
 
 export const WalletContextProvider = ({
     children,
@@ -19,16 +26,7 @@ export const WalletContextProvider = ({
     children: React.ReactNode;
 }) => {
     const { toast } = useToast();
-    const network = WalletAdapterNetwork.Devnet;
-    const endpoint = useMemo(() => clusterApiUrl(network), [network]);
-
-    const wallets = useMemo(
-        () => [
-            new PhantomWalletAdapter(),
-            new SolflareWalletAdapter({ network }),
-        ],
-        [network]
-    );
+    const endpoint = useMemo(() => clusterApiUrl(network), []);
 
     const onError = useCallback((error: WalletError) => {
         console.error(error);
