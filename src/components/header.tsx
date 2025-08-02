@@ -63,7 +63,7 @@ function PlatformTokenDisplay() {
 
 export function Header() {
   return (
-    <header className="sticky top-0 z-10 flex h-16 shrink-0 items-center gap-4 border-b bg-background/80 px-4 sm:px-6 backdrop-blur-sm">
+    <header className="sticky top-0 z-10 flex h-16 shrink-0 items-center gap-4 bg-background/80 px-4 sm:px-6 backdrop-blur-sm">
       <SidebarTrigger className="md:hidden" />
       <div className="flex items-center gap-4 mr-auto">
         <PlatformTokenDisplay />
