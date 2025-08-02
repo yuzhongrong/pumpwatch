@@ -11,7 +11,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { ChevronDown, Copy, LogOut, Wallet } from 'lucide-react';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 
 export function WalletButton() {
@@ -35,7 +35,7 @@ export function WalletButton() {
       setIsCopied(false);
     }, 2000);
   };
-
+  
   if (!connected || !base58) {
     return (
       <Button onClick={() => setVisible(true)}>
