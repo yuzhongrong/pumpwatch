@@ -5,14 +5,20 @@ import React, { useMemo, useCallback } from 'react';
 import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react';
 import { WalletModalProvider } from '@solana/wallet-adapter-react-ui';
 import { WalletAdapterNetwork, WalletError } from '@solana/wallet-adapter-base';
+import {
+    PhantomWalletAdapter,
+} from '@solana/wallet-adapter-phantom';
+import { SolflareWalletAdapter } from '@solana/wallet-adapter-solflare';
 import { clusterApiUrl } from '@solana/web3.js';
 import { useToast } from '@/hooks/use-toast';
 
 const network = WalletAdapterNetwork.Devnet;
 
-// Wallets array is temporarily empty to prevent build failures.
-// Add wallet adapters here once the correct packages are identified.
-const wallets: any[] = [];
+// Use a list of stable and well-supported wallets.
+const wallets = [
+    new PhantomWalletAdapter(),
+    new SolflareWalletAdapter({ network }),
+];
 
 export const WalletContextProvider = ({
     children,
@@ -35,7 +41,7 @@ export const WalletContextProvider = ({
 
     return (
         <ConnectionProvider endpoint={endpoint}>
-            <WalletProvider wallets={wallets} onError={onError} autoConnect={false}>
+            <WalletProvider wallets={wallets} onError={onError} autoConnect={true}>
                 <WalletModalProvider>{children}</WalletModalProvider>
             </WalletProvider>
         </ConnectionProvider>
