@@ -68,7 +68,7 @@ function LiquidityMiningManager() {
     <Card className="w-full">
         <CardHeader>
             <CardTitle>夜晚挂机</CardTitle>
-            <CardDescription>管理您在 Meteora DLMM 上的流动性头寸。</CardDescription>
+            <CardDescription>触发条件1h rsi &lt;30 &amp;&amp;4h rsi&lt;30</CardDescription>
         </CardHeader>
         <CardContent>
             <Alert>
