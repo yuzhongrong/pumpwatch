@@ -30,7 +30,7 @@ function PlatformTokenDisplay() {
   }
 
   return (
-    <div className="flex items-center gap-2 sm:gap-4 bg-background border rounded-lg px-3 py-1.5 text-sm">
+    <div className="flex items-center gap-2 sm:gap-4 bg-background border-border/50 border rounded-lg px-3 py-1.5 text-sm">
       <div className="flex items-center gap-2">
           <span className="hidden sm:inline text-muted-foreground">平台代币:</span>
           <span className="font-mono text-xs sm:text-sm text-foreground truncate max-w-[100px] sm:max-w-[150px]">
