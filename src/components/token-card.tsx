@@ -11,7 +11,10 @@ import { useState, useEffect } from 'react';
 import { Button } from './ui/button';
 import { Skeleton } from './ui/skeleton';
 
-const formatNumber = (num: number) => {
+const formatNumber = (num: number | null | undefined) => {
+  if (typeof num !== 'number' || isNaN(num)) {
+    return '...';
+  }
   if (num >= 1_000_000) return `${(num / 1_000_000).toFixed(2)}M`;
   if (num >= 1_000) return `${(num / 1_000).toFixed(1)}K`;
   return num.toString();
