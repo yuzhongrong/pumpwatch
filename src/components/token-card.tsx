@@ -146,7 +146,7 @@ export function TokenCard({ token }: { token: TokenData }) {
         <div className="flex items-start justify-between gap-4">
           <div className="flex items-center gap-3">
             <Image
-              src={token.info.imageUrl || `https://placehold.co/40x40.png`}
+              src={token.info?.imageUrl || `https://placehold.co/40x40.png`}
               alt={`${token.symbol} logo`}
               width={40}
               height={40}
