@@ -109,12 +109,12 @@ function TradeInfo({ token }: { token: TokenData }) {
       return null;
     }
 
-    const priceChange = token.priceChange[activeTab];
-    const isPositive = priceChange >= 0;
-    const buys = token.txns[activeTab].buys;
-    const sells = token.txns[activeTab].sells;
+    const priceChange = token.priceChange?.[activeTab];
+    const isPositive = typeof priceChange === 'number' ? priceChange >= 0 : false;
+    const buys = token.txns?.[activeTab]?.buys ?? 0;
+    const sells = token.txns?.[activeTab]?.sells ?? 0;
     const totalTxns = buys + sells;
-    const volume = token.volume[activeTab];
+    const volume = token.volume?.[activeTab] ?? 0;
     const buyVolume = totalTxns > 0 ? (volume * buys) / totalTxns : 0;
     const sellVolume = totalTxns > 0 ? (volume * sells) / totalTxns : 0;
 
@@ -122,14 +122,20 @@ function TradeInfo({ token }: { token: TokenData }) {
         <div className="bg-card/50 p-3">
              <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as Timeframe)} className="w-full">
                 <TabsList className="grid w-full grid-cols-4 h-auto bg-transparent p-0">
-                    {timeframes.map(({ key, label }) => (
-                        <TabsTrigger key={key} value={key} className="flex-col data-[state=active]:bg-muted/80 data-[state=active]:shadow-none rounded-md p-1.5 text-xs h-full whitespace-normal">
-                             <span>{label}</span>
-                             <span className={`font-semibold mt-1 text-sm ${token.priceChange[key] >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                                {token.priceChange[key].toFixed(2)}%
-                            </span>
-                        </TabsTrigger>
-                    ))}
+                    {timeframes.map(({ key, label }) => {
+                        const currentPriceChange = token.priceChange?.[key];
+                        const isPriceChangeValid = typeof currentPriceChange === 'number';
+                        const isCurrentPositive = isPriceChangeValid && currentPriceChange >= 0;
+
+                        return (
+                            <TabsTrigger key={key} value={key} className="flex-col data-[state=active]:bg-muted/80 data-[state=active]:shadow-none rounded-md p-1.5 text-xs h-full whitespace-normal">
+                                <span>{label}</span>
+                                <span className={`font-semibold mt-1 text-sm ${isCurrentPositive ? 'text-green-500' : 'text-red-500'}`}>
+                                    {isPriceChangeValid ? `${currentPriceChange.toFixed(2)}%` : '...'}
+                                </span>
+                            </TabsTrigger>
+                        );
+                    })}
                 </TabsList>
                 <div className="mt-4 space-y-4">
                      <StatRow
