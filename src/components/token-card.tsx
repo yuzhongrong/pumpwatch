@@ -2,11 +2,10 @@
 'use client';
 
 import Image from 'next/image';
-import { AreaChart, Area, Tooltip as RechartsTooltip, ResponsiveContainer } from 'recharts';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import type { TokenData } from '@/lib/data';
-import { TrendingUp, TrendingDown, Copy, Check, Eye, ShoppingCart, ShieldCheck, ExternalLink, AlertTriangle } from 'lucide-react';
+import { TrendingUp, TrendingDown, Copy, Check, Eye, ShoppingCart, ShieldCheck, ExternalLink, AlertTriangle, Plus } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { Button } from './ui/button';
 import { Skeleton } from './ui/skeleton';
@@ -111,8 +110,6 @@ function TradeInfo({ token }: { token: TokenData }) {
       return null;
     }
 
-    const priceChange = token.priceChange?.[activeTab];
-    const isPositive = typeof priceChange === 'number' ? priceChange >= 0 : false;
     const buys = token.txns?.[activeTab]?.buys ?? 0;
     const sells = token.txns?.[activeTab]?.sells ?? 0;
     const totalTxns = buys + sells;
@@ -121,7 +118,14 @@ function TradeInfo({ token }: { token: TokenData }) {
     const sellVolume = totalTxns > 0 ? (volume * sells) / totalTxns : 0;
 
     return (
-        <div className="bg-card/50 p-3 pt-4 mt-4 border-t">
+        <div className="bg-card/50 px-3 pt-2 pb-3 mt-2">
+             <div className="flex items-center gap-2 my-2">
+                <div className="flex-1 h-px bg-border"></div>
+                <div className="rounded-full border border-border p-1">
+                    <Plus className="h-3 w-3 text-muted-foreground" />
+                </div>
+                <div className="flex-1 h-px bg-border"></div>
+            </div>
              <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as Timeframe)} className="w-full">
                 <TabsList className="grid w-full grid-cols-4 h-auto bg-transparent p-0">
                     {timeframes.map(({ key, label }) => {
@@ -162,7 +166,6 @@ function TradeInfo({ token }: { token: TokenData }) {
 export function TokenCardSkeleton() {
   return (
     <Card className="flex flex-col">
-       <Skeleton className="h-24 w-full" />
       <CardHeader className="pt-4 px-4 pb-2">
         <div className="flex items-start justify-between gap-4">
           <div className="flex items-center gap-3">
@@ -191,7 +194,6 @@ export function TokenCardSkeleton() {
 
 export function TokenCard({ token }: { token: TokenData }) {
   const isPositive = token.priceChange && typeof token.priceChange.h24 === 'number' ? token.priceChange.h24 >= 0 : true;
-  const chartColor = isPositive ? 'hsl(var(--primary))' : 'hsl(var(--destructive))';
   const [isCopied, setIsCopied] = useState(false);
   const [suggestion, setSuggestion] = useState<Suggestion | null>(null);
   const [isMounted, setIsMounted] = useState(false);
@@ -212,13 +214,9 @@ export function TokenCard({ token }: { token: TokenData }) {
   
   const SuggestionIcon = suggestion?.icon;
 
-  const chartData = (token['rsi_200_5m'] || [])
-    .map(d => ({ time: parseInt(d[0]), value: parseFloat(d[4]) }))
-    .sort((a, b) => a.time - b.time);
-
-  const latestPrice = token.current_price ?? (chartData.length > 0 ? chartData[chartData.length - 1].value : parseFloat(token.priceUsd));
+  const latestPrice = token.current_price ?? parseFloat(token.priceUsd);
   
-  const lowVolume = token.volume?.h24 < 1000000;
+  const lowVolume = token.volume?.h24 != null && token.volume.h24 < 1000000;
 
   return (
     <Card className="flex flex-col transition-all hover:shadow-lg hover:-translate-y-1 overflow-hidden bg-card border-border/60 hover:border-primary/50">
@@ -317,5 +315,3 @@ export function TokenCard({ token }: { token: TokenData }) {
     </Card>
   );
 }
-
-    
