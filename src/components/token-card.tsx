@@ -234,28 +234,24 @@ export function TokenCard({ token }: { token: TokenData }) {
             <div>
               <CardTitle className="text-base font-bold leading-tight flex items-center gap-1.5">
                 <span>{token.symbol}</span>
-                {lowVolume && (
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger>
-                        <AlertTriangle className="h-4 w-4 text-yellow-500" />
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>交易量低，请注意风险</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                )}
               </CardTitle>
               <CardDescription className="text-sm">${token.symbol}</CardDescription>
             </div>
           </div>
+          <div className="flex flex-col items-end gap-1.5">
             {isMounted && suggestion && SuggestionIcon && (
                 <Badge variant={suggestion.variant} className="flex items-center gap-1.5 shrink-0">
                     <SuggestionIcon className="h-3.5 w-3.5" />
                     {suggestion.text}
                 </Badge>
             )}
+            {lowVolume && (
+                 <Badge variant="warning" className="flex items-center gap-1.5 shrink-0">
+                    <AlertTriangle className="h-3.5 w-3.5" />
+                    交易量低
+                </Badge>
+            )}
+          </div>
         </div>
       </CardHeader>
       <CardContent className="flex-grow p-4 pt-2">
@@ -315,3 +311,5 @@ export function TokenCard({ token }: { token: TokenData }) {
     </Card>
   );
 }
+
+    
