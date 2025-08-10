@@ -19,7 +19,7 @@ const formatNumber = (num: number | null | undefined, decimals = 2) => {
   }
   if (num >= 1_000_000) return `${(num / 1_000_000).toFixed(decimals)}M`;
   if (num >= 1_000) return `${(num / 1_000).toFixed(decimals)}K`;
-  return num.toString();
+  return num.toFixed(decimals);
 };
 
 const formatPrice = (price: number): string => {
@@ -119,7 +119,7 @@ function TradeInfo({ token }: { token: TokenData }) {
     const sellVolume = totalTxns > 0 ? (volume * sells) / totalTxns : 0;
 
     return (
-        <div className="bg-card/50 p-3">
+        <div className="bg-card/50 p-3 pt-4 mt-4 border-t">
              <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as Timeframe)} className="w-full">
                 <TabsList className="grid w-full grid-cols-4 h-auto bg-transparent p-0">
                     {timeframes.map(({ key, label }) => {
@@ -131,7 +131,7 @@ function TradeInfo({ token }: { token: TokenData }) {
                             <TabsTrigger key={key} value={key} className="flex-col data-[state=active]:bg-muted/80 data-[state=active]:shadow-none rounded-md p-1.5 text-xs h-full whitespace-normal">
                                 <span>{label}</span>
                                 <span className={`font-semibold mt-1 text-sm ${isCurrentPositive ? 'text-green-500' : 'text-red-500'}`}>
-                                    {isPriceChangeValid ? `${currentPriceChange.toFixed(2)}%` : '...'}
+                                     {isPriceChangeValid ? `${currentPriceChange.toFixed(2)}%` : '...'}
                                 </span>
                             </TabsTrigger>
                         );
@@ -140,9 +140,9 @@ function TradeInfo({ token }: { token: TokenData }) {
                 <div className="mt-4 space-y-4">
                      <StatRow
                         label="交易笔数"
-                        value={formatNumber(totalTxns, 2)}
-                        buys={formatNumber(buys, 2)}
-                        sells={formatNumber(sells, 2)}
+                        value={formatNumber(totalTxns, 0)}
+                        buys={formatNumber(buys, 0)}
+                        sells={formatNumber(sells, 0)}
                     />
                     <StatRow
                         label="成交额"
@@ -218,29 +218,6 @@ export function TokenCard({ token }: { token: TokenData }) {
 
   return (
     <Card className="flex flex-col transition-all hover:shadow-lg hover:-translate-y-1 overflow-hidden bg-card border-border/60 hover:border-primary/50">
-       <TradeInfo token={token} />
-       <div className="h-24 w-full relative">
-          <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={chartData} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
-              <defs>
-                <linearGradient id={`color-${token.tokenContractAddress}`} x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor={chartColor} stopOpacity={0.4}/>
-                  <stop offset="95%" stopColor={chartColor} stopOpacity={0}/>
-                </linearGradient>
-              </defs>
-              <Tooltip content={<CustomTooltip />} cursor={false} />
-              <Area
-                type="monotone"
-                dataKey="value"
-                stroke={chartColor}
-                strokeWidth={2}
-                fillOpacity={1}
-                fill={`url(#color-${token.tokenContractAddress})`}
-                isAnimationActive={false}
-              />
-            </AreaChart>
-          </ResponsiveContainer>
-        </div>
       <CardHeader className="pt-4 px-4 pb-2">
         <div className="flex items-start justify-between gap-4">
           <div className="flex items-center gap-3">
@@ -305,7 +282,7 @@ export function TokenCard({ token }: { token: TokenData }) {
        <CardFooter className="px-4 pb-4 text-xs pt-0 flex justify-between items-center text-muted-foreground">
          <div className="flex items-center gap-1">
             <span>MCap:</span>
-            <span className="font-mono font-medium text-foreground/80">${formatNumber(token.marketCap)}</span>
+            <span className="font-mono font-medium text-foreground/80">${formatNumber(token.marketCap, 0)}</span>
         </div>
         <div className="flex items-center gap-2">
             <div className="flex items-center gap-1">
@@ -318,6 +295,7 @@ export function TokenCard({ token }: { token: TokenData }) {
             </div>
         </div>
       </CardFooter>
+      <TradeInfo token={token} />
     </Card>
   );
 }
