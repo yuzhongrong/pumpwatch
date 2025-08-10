@@ -10,13 +10,15 @@ import { TrendingUp, TrendingDown, Copy, Check, Eye, ShoppingCart, ShieldCheck, 
 import { useState, useEffect } from 'react';
 import { Button } from './ui/button';
 import { Skeleton } from './ui/skeleton';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
+import { Progress } from './ui/progress';
 
-const formatNumber = (num: number | null | undefined) => {
+const formatNumber = (num: number | null | undefined, decimals = 2) => {
   if (typeof num !== 'number' || isNaN(num)) {
     return '...';
   }
-  if (num >= 1_000_000) return `${(num / 1_000_000).toFixed(2)}M`;
-  if (num >= 1_000) return `${(num / 1_000).toFixed(1)}K`;
+  if (num >= 1_000_000) return `${(num / 1_000_000).toFixed(decimals)}M`;
+  if (num >= 1_000) return `${(num / 1_000).toFixed(decimals)}K`;
   return num.toString();
 };
 
@@ -58,6 +60,96 @@ const getTradingSuggestion = (rsi5m: number | null, rsi1h: number | null) => {
 };
 
 type Suggestion = ReturnType<typeof getTradingSuggestion>;
+type Timeframe = 'm5' | 'h1' | 'h6' | 'h24';
+
+const timeframes: { key: Timeframe, label: string }[] = [
+    { key: 'm5', label: '5分钟' },
+    { key: 'h1', label: '1小时' },
+    { key: 'h6', label: '4小时' },
+    { key: 'h24', label: '24小时' },
+];
+
+function StatRow({ label, value, buys, sells }: { label: string; value: string; buys: string; sells: string }) {
+    const buyValue = parseFloat(buys.replace(/[^0-9.]/g, '')) || 0;
+    const sellValue = parseFloat(sells.replace(/[^0-9.]/g, '')) || 0;
+    const total = buyValue + sellValue;
+    const buyPercentage = total > 0 ? (buyValue / total) * 100 : 50;
+
+    return (
+        <div>
+            <div className="flex justify-between items-end">
+                <div className="text-left">
+                    <p className="text-xs text-muted-foreground">{label}</p>
+                    <p className="font-semibold text-foreground text-base">{value}</p>
+                </div>
+                <div className="text-right">
+                    <div className="flex gap-4">
+                        <div>
+                            <p className="text-xs text-green-400">买入</p>
+                            <p className="text-sm font-medium">{buys}</p>
+                        </div>
+                        <div>
+                            <p className="text-xs text-red-400">卖出</p>
+                            <p className="text-sm font-medium">{sells}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div className="mt-1">
+                <Progress value={buyPercentage} className="h-1.5 [&>div]:bg-green-500" style={{backgroundColor: 'hsl(var(--destructive))'}}/>
+            </div>
+        </div>
+    );
+}
+
+function TradeInfo({ token }: { token: TokenData }) {
+    const [activeTab, setActiveTab] = useState<Timeframe>('h24');
+    
+    if (!token.txns || !token.volume) {
+      return null;
+    }
+
+    const priceChange = token.priceChange[activeTab];
+    const isPositive = priceChange >= 0;
+    const buys = token.txns[activeTab].buys;
+    const sells = token.txns[activeTab].sells;
+    const totalTxns = buys + sells;
+    const volume = token.volume[activeTab];
+    const buyVolume = totalTxns > 0 ? (volume * buys) / totalTxns : 0;
+    const sellVolume = totalTxns > 0 ? (volume * sells) / totalTxns : 0;
+
+    return (
+        <div className="bg-card/50 p-3">
+             <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as Timeframe)} className="w-full">
+                <TabsList className="grid w-full grid-cols-4 h-auto bg-transparent p-0">
+                    {timeframes.map(({ key, label }) => (
+                        <TabsTrigger key={key} value={key} className="flex-col data-[state=active]:bg-muted/80 data-[state=active]:shadow-none rounded-md p-1.5 text-xs h-full whitespace-normal">
+                             <span>{label}</span>
+                             <span className={`font-semibold mt-1 text-sm ${token.priceChange[key] >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                                {token.priceChange[key].toFixed(2)}%
+                            </span>
+                        </TabsTrigger>
+                    ))}
+                </TabsList>
+                <div className="mt-4 space-y-4">
+                     <StatRow
+                        label="交易笔数"
+                        value={formatNumber(totalTxns, 2)}
+                        buys={formatNumber(buys, 2)}
+                        sells={formatNumber(sells, 2)}
+                    />
+                    <StatRow
+                        label="成交额"
+                        value={`$${formatNumber(volume, 2)}`}
+                        buys={`$${formatNumber(buyVolume, 2)}`}
+                        sells={`$${formatNumber(sellVolume, 2)}`}
+                    />
+                </div>
+            </Tabs>
+        </div>
+    );
+}
+
 
 export function TokenCardSkeleton() {
   return (
@@ -120,6 +212,7 @@ export function TokenCard({ token }: { token: TokenData }) {
 
   return (
     <Card className="flex flex-col transition-all hover:shadow-lg hover:-translate-y-1 overflow-hidden bg-card border-border/60 hover:border-primary/50">
+       <TradeInfo token={token} />
        <div className="h-24 w-full relative">
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={chartData} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
