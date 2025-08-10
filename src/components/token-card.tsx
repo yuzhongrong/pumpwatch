@@ -2,16 +2,18 @@
 'use client';
 
 import Image from 'next/image';
-import { AreaChart, Area, Tooltip, ResponsiveContainer } from 'recharts';
+import { AreaChart, Area, Tooltip as RechartsTooltip, ResponsiveContainer } from 'recharts';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import type { TokenData } from '@/lib/data';
-import { TrendingUp, TrendingDown, Copy, Check, Eye, ShoppingCart, ShieldCheck, ExternalLink } from 'lucide-react';
+import { TrendingUp, TrendingDown, Copy, Check, Eye, ShoppingCart, ShieldCheck, ExternalLink, AlertTriangle } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { Button } from './ui/button';
 import { Skeleton } from './ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import { Progress } from './ui/progress';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+
 
 const formatNumber = (num: number | null | undefined, decimals = 2) => {
   if (typeof num !== 'number' || isNaN(num)) {
@@ -215,6 +217,8 @@ export function TokenCard({ token }: { token: TokenData }) {
     .sort((a, b) => a.time - b.time);
 
   const latestPrice = token.current_price ?? (chartData.length > 0 ? chartData[chartData.length - 1].value : parseFloat(token.priceUsd));
+  
+  const lowVolume = token.volume?.h24 < 1000000;
 
   return (
     <Card className="flex flex-col transition-all hover:shadow-lg hover:-translate-y-1 overflow-hidden bg-card border-border/60 hover:border-primary/50">
@@ -230,7 +234,21 @@ export function TokenCard({ token }: { token: TokenData }) {
               unoptimized
             />
             <div>
-              <CardTitle className="text-base font-bold leading-tight">{token.symbol}</CardTitle>
+              <CardTitle className="text-base font-bold leading-tight flex items-center gap-1.5">
+                <span>{token.symbol}</span>
+                {lowVolume && (
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger>
+                        <AlertTriangle className="h-4 w-4 text-yellow-500" />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>交易量低，请注意风险</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                )}
+              </CardTitle>
               <CardDescription className="text-sm">${token.symbol}</CardDescription>
             </div>
           </div>
@@ -299,3 +317,5 @@ export function TokenCard({ token }: { token: TokenData }) {
     </Card>
   );
 }
+
+    
