@@ -11,7 +11,6 @@ import { Button } from './ui/button';
 import { Skeleton } from './ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import { Progress } from './ui/progress';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 
 const formatNumber = (num: number | null | undefined, decimals = 2) => {
@@ -70,28 +69,26 @@ const timeframes: { key: Timeframe, label: string }[] = [
     { key: 'h24', label: '24小时' },
 ];
 
-function StatRow({ label, value, buys, sells }: { label: string; value: string; buys: string; sells: string }) {
-    const buyValue = parseFloat(buys.replace(/[^0-9.]/g, '')) || 0;
-    const sellValue = parseFloat(sells.replace(/[^0-9.]/g, '')) || 0;
-    const total = buyValue + sellValue;
-    const buyPercentage = total > 0 ? (buyValue / total) * 100 : 50;
+function StatRow({ label, value, buys, sells, valuePrefix = '' }: { label: string; value: string; buys: number; sells: number; valuePrefix?: string; }) {
+    const total = buys + sells;
+    const buyPercentage = total > 0 ? (buys / total) * 100 : 50;
 
     return (
         <div>
             <div className="flex justify-between items-end">
                 <div className="text-left">
                     <p className="text-xs text-muted-foreground">{label}</p>
-                    <p className="font-semibold text-foreground text-base">{value}</p>
+                    <p className="font-semibold text-foreground text-base">{valuePrefix}{value}</p>
                 </div>
                 <div className="text-right">
                     <div className="flex gap-4">
                         <div>
                             <p className="text-xs text-green-400">买入</p>
-                            <p className="text-sm font-medium">{buys}</p>
+                            <p className="text-sm font-medium">{valuePrefix}{formatNumber(buys, 0)}</p>
                         </div>
                         <div>
                             <p className="text-xs text-red-400">卖出</p>
-                            <p className="text-sm font-medium">{sells}</p>
+                            <p className="text-sm font-medium">{valuePrefix}{formatNumber(sells, 0)}</p>
                         </div>
                     </div>
                 </div>
@@ -147,14 +144,15 @@ function TradeInfo({ token }: { token: TokenData }) {
                      <StatRow
                         label="交易笔数"
                         value={formatNumber(totalTxns, 0)}
-                        buys={formatNumber(buys, 0)}
-                        sells={formatNumber(sells, 0)}
+                        buys={buys}
+                        sells={sells}
                     />
                     <StatRow
                         label="成交额"
-                        value={`$${formatNumber(volume, 2)}`}
-                        buys={`$${formatNumber(buyVolume, 2)}`}
-                        sells={`$${formatNumber(sellVolume, 2)}`}
+                        value={formatNumber(volume, 2)}
+                        buys={buyVolume}
+                        sells={sellVolume}
+                        valuePrefix="$"
                     />
                 </div>
             </Tabs>
