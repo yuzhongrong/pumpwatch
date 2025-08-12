@@ -214,7 +214,7 @@ export function TokenCard({ token }: { token: TokenData }) {
 
   const latestPrice = token.current_price ?? parseFloat(token.priceUsd);
   
-  const lowVolume = token.volume?.h24 != null && token.volume.h24 < 1000000;
+  const lowVolume = token.volume?.h24 != null && token.volume.h24 < 800000;
 
   return (
     <Card className="flex flex-col transition-all hover:shadow-lg hover:-translate-y-1 overflow-hidden bg-card border-border/60 hover:border-primary/50">
