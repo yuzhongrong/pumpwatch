@@ -9,10 +9,12 @@ import {
     PhantomWalletAdapter,
 } from '@solana/wallet-adapter-phantom';
 import { SolflareWalletAdapter } from '@solana/wallet-adapter-solflare';
-import { clusterApiUrl } from '@solana/web3.js';
 import { useToast } from '@/hooks/use-toast';
 
-const network = WalletAdapterNetwork.Devnet;
+const network = WalletAdapterNetwork.Mainnet;
+
+// The RPC endpoint. Use the one provided by the user for better performance.
+const rpcEndpoint = "https://mainnet.helius-rpc.com/?api-key=0ad72fea-567e-4f87-ab99-2a1985319fec";
 
 // Use a list of stable and well-supported wallets.
 const wallets = [
@@ -26,8 +28,7 @@ export const WalletContextProvider = ({
     children: React.ReactNode;
 }) => {
     const { toast } = useToast();
-    const endpoint = useMemo(() => clusterApiUrl(network), []);
-
+    
     const onError = useCallback((error: WalletError) => {
         console.warn(error);
         if (error.message !== 'Wallet not selected') {
@@ -40,7 +41,7 @@ export const WalletContextProvider = ({
     }, [toast]);
 
     return (
-        <ConnectionProvider endpoint={endpoint}>
+        <ConnectionProvider endpoint={rpcEndpoint}>
             <WalletProvider wallets={wallets} onError={onError} autoConnect={true}>
                 <WalletModalProvider>{children}</WalletModalProvider>
             </WalletProvider>
