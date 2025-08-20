@@ -13,14 +13,14 @@ import { useToast } from '@/hooks/use-toast';
 import { Loader2, Trash2, Wallet, BadgeCheck, AlertCircle } from 'lucide-react';
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
 import { PublicKey, Transaction } from '@solana/web3.js';
-import { getAssociatedTokenAddress, createTransferInstruction, getAccount } from '@solana/spl-token';
+import { getAssociatedTokenAddress, createTransferInstruction } from '@solana/spl-token';
 import { Alert, AlertDescription, AlertTitle } from './ui/alert';
 
 const formSchema = z.object({
   email: z.string().email({ message: '请输入有效的邮箱地址' }),
 });
 
-const PW_TOKEN_DECIMALS = 6; // Assuming PW token has 6 decimals
+const PW_TOKEN_DECIMALS = 6; // This is used for sending the transaction, not for fetching balance anymore.
 
 type SubscriptionStatus = 'inactive' | 'active';
 
@@ -85,19 +85,14 @@ export function NotificationSettings() {
         // Fetch PW token balance
         try {
             const tokenAccount = await getAssociatedTokenAddress(pwTokenMint, publicKey);
-            const accountInfo = await connection.getAccountInfo(tokenAccount);
-            if (accountInfo) {
-                const accountData = await getAccount(connection, tokenAccount);
-                // Use BigInt for calculation to avoid precision loss with large numbers
-                const balanceBI = accountData.amount;
-                const decimalsBI = BigInt(10 ** PW_TOKEN_DECIMALS);
-                const balance = Number(balanceBI / decimalsBI); // Convert to number only after division
-                setPwBalance(balance);
-            } else {
-                setPwBalance(0);
-            }
+            // Use getTokenAccountBalance for reliability
+            const balanceResponse = await connection.getTokenAccountBalance(tokenAccount);
+            const balance = balanceResponse.value.uiAmount ?? 0;
+            setPwBalance(balance);
         } catch (e: any) {
             console.error("Could not get token balance", e);
+            // It's common for this to fail if the token account doesn't exist.
+            // In that case, the balance is 0.
             if (e.message?.includes('403')) {
                  toast({
                     title: "RPC 访问被拒绝",
