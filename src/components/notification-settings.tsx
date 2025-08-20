@@ -90,16 +90,9 @@ export function NotificationSettings() {
             const balance = balanceResponse.value.uiAmount ?? 0;
             setPwBalance(balance);
         } catch (e: any) {
-            console.error("Could not get token balance", e);
             // It's common for this to fail if the token account doesn't exist.
-            // In that case, the balance is 0.
-            if (e.message?.includes('403')) {
-                 toast({
-                    title: "RPC 访问被拒绝",
-                    description: "请检查您的 API 密钥以及域名白名单设置。",
-                    variant: "destructive",
-                });
-            }
+            // In that case, the balance is 0. We'll log for debugging but not show a user-facing error.
+            console.error("Could not get token balance, likely the account does not exist:", e.message);
             setPwBalance(0);
         }
       } catch (error) {
