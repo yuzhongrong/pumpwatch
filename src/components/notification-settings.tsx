@@ -88,7 +88,10 @@ export function NotificationSettings() {
             const accountInfo = await connection.getAccountInfo(tokenAccount);
             if (accountInfo) {
                 const accountData = await getAccount(connection, tokenAccount);
-                const balance = Number(accountData.amount) / (10 ** PW_TOKEN_DECIMALS);
+                // Use BigInt for calculation to avoid precision loss with large numbers
+                const balanceBI = accountData.amount;
+                const decimalsBI = BigInt(10 ** PW_TOKEN_DECIMALS);
+                const balance = Number(balanceBI / decimalsBI); // Convert to number only after division
                 setPwBalance(balance);
             } else {
                 setPwBalance(0);
