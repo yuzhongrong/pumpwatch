@@ -13,8 +13,8 @@ import { useToast } from '@/hooks/use-toast';
 
 const network = WalletAdapterNetwork.Mainnet;
 
-// The RPC endpoint. Use the one provided by the user for better performance.
-const rpcEndpoint = "https://mainnet.helius-rpc.com/?api-key=0ad72fea-567e-4f87-ab99-2a1985319fec";
+// The RPC endpoint is now read from environment variables for better security and flexibility.
+const rpcEndpoint = process.env.NEXT_PUBLIC_RPC_ENDPOINT || "https://api.mainnet-beta.solana.com";
 
 // Use a list of stable and well-supported wallets.
 const wallets = [
